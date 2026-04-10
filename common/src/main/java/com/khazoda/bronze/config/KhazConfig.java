@@ -1,21 +1,20 @@
-package com.khazoda.bronze.config;
+package com.example.examplemod.config;
 
-import com.khazoda.bronze.Constants;
-import com.khazoda.bronze.platform.Services;
+import com.example.examplemod.Constants;
+import com.example.examplemod.platform.Services;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * KhazConfig is a simple multiloader config helper class for Khazoda's mods.
+ * Config files are generated and read from {mod_name}.properties files in /config
+ * It's not recommended to use this class yourself. Its structure may change over time and there may be breaking changes.
+ */
 public final class KhazConfig {
   private final String modId;
   private final Path file;
@@ -102,72 +101,6 @@ public final class KhazConfig {
     });
   }
 
-  public synchronized void load() {
-    if (loaded) return;
-
-    Properties properties = new Properties();
-    if (Files.exists(file)) {
-      try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-        properties.load(reader);
-      } catch (IOException e) {
-        Constants.LOG.warn("Failed to read config file {}: {}", file, e.getMessage());
-      }
-    }
-
-    boolean changed = !Files.exists(file);
-    values.clear();
-    for (Entry<?> entry : entries) {
-      Object value = readValue(entry, properties.getProperty(entry.key()));
-      values.put(entry, value);
-      String serialized = formatValue(entry, value);
-      if (!Objects.equals(properties.getProperty(entry.key()), serialized)) {
-        changed = true;
-      }
-    }
-
-    loaded = true;
-    if (changed) {
-      write();
-    }
-  }
-
-  public synchronized void reload() {
-    loaded = false;
-    load();
-  }
-
-  public synchronized <T> T get(Entry<T> entry) {
-    load();
-    @SuppressWarnings("unchecked")
-    T value = (T) values.getOrDefault(entry, entry.defaultValue());
-    return value;
-  }
-
-  private synchronized void write() {
-    try {
-      Files.createDirectories(file.getParent());
-      Files.writeString(file, render(), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      Constants.LOG.warn("Failed to write config file {}: {}", file, e.getMessage());
-    }
-  }
-
-  private String render() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("# ").append(modId).append(" config").append('\n');
-    builder.append("# Delete any key to restore its default value.").append('\n').append('\n');
-
-    for (Entry<?> entry : entries) {
-      if (!entry.comment().isBlank()) {
-        for (String line : splitCommentLines(entry.comment())) {
-          builder.append("# ").append(line).append('\n');
-        }
-      }
-      builder.append(entry.key()).append('=').append(formatValue(entry, values.getOrDefault(entry, entry.defaultValue()))).append('\n').append('\n');
-    }
-    return builder.toString();
-  }
-
   private static List<String> splitCommentLines(String text) {
     return List.of(text.split("\\R"));
   }
@@ -197,9 +130,81 @@ public final class KhazConfig {
   }
 
   private static <T> String formatValue(Entry<T> entry, Object value) {
-    @SuppressWarnings("unchecked")
-    T typedValue = (T) value;
+    @SuppressWarnings("unchecked") T typedValue = (T) value;
     return entry.adapter().format(typedValue);
+  }
+
+  public synchronized void load() {
+    if (loaded) return;
+
+    Properties properties = new Properties();
+    if (Files.exists(file)) {
+      try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+        properties.load(reader);
+      } catch (IOException e) {
+        Constants.LOG.warn("Failed to read config file {}: {}", file, e.getMessage());
+      }
+    }
+
+    boolean changed = !Files.exists(file);
+    values.clear();
+    for (Entry<?> entry : entries) {
+      Object value = readValue(entry, properties.getProperty(entry.key()));
+      values.put(entry, value);
+      String serialized = formatValue(entry, value);
+      if (!Objects.equals(properties.getProperty(entry.key()), serialized)) {
+        changed = true;
+      }
+    }
+
+    loaded = true;
+    if (changed) {
+      write();
+    }
+  }
+
+
+  // Re-loads the config file into memory. Call this for config values that don't logically need a game restart
+  public synchronized void reload() {
+    loaded = false;
+    load();
+  }
+
+  public synchronized <T> T get(Entry<T> entry) {
+    load();
+    @SuppressWarnings("unchecked") T value = (T) values.getOrDefault(entry, entry.defaultValue());
+    return value;
+  }
+
+  private synchronized void write() {
+    try {
+      Files.createDirectories(file.getParent());
+      Files.writeString(file, render(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      Constants.LOG.warn("Failed to write config file {}: {}", file, e.getMessage());
+    }
+  }
+
+  private String render() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("# ").append(modId).append(" config").append('\n');
+    builder.append("# Delete any key to restore its default value.").append('\n').append('\n');
+
+    for (Entry<?> entry : entries) {
+      if (!entry.comment().isBlank()) {
+        for (String line : splitCommentLines(entry.comment())) {
+          builder.append("# ").append(line).append('\n');
+        }
+      }
+      builder.append(entry.key()).append('=').append(formatValue(entry, values.getOrDefault(entry, entry.defaultValue()))).append('\n').append('\n');
+    }
+    return builder.toString();
+  }
+
+  public interface ValueAdapter<T> {
+    T parse(String raw, T fallback);
+
+    String format(T value);
   }
 
   public record Entry<T>(String key, T defaultValue, String comment, ValueAdapter<T> adapter) {
@@ -209,10 +214,5 @@ public final class KhazConfig {
       Objects.requireNonNull(comment, "comment");
       Objects.requireNonNull(adapter, "adapter");
     }
-  }
-
-  public interface ValueAdapter<T> {
-    T parse(String raw, T fallback);
-    String format(T value);
   }
 }
