@@ -1,0 +1,26 @@
+{
+  "parent": "bronze:bronze/got_tin_ingot",
+  "criteria": {
+    "got_tin_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bronze:tin_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "got_tin_ingot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bronze:crafting/compat/tin_knife"
+    ]
+  },
+  "sends_telemetry_event": true
+}

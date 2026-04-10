@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "#c:glass_blocks/cheap",
+    "T": "#c:ingots/tin"
+  },
+  "pattern": [
+    "###",
+    "#T#",
+    "###"
+  ],
+  "result": {
+    "count": 8,
+    "id": "bronze:tin_framed_glass"
+  }
+}

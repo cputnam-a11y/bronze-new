@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "#c:ingots/bronze"
+  },
+  "pattern": [
+    "BB",
+    "BB",
+    "BB"
+  ],
+  "result": {
+    "count": 3,
+    "id": "bronze:bronze_door_block"
+  }
+}

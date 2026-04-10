@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "got_bronze_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bronze:bronze_block"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "got_bronze_block"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bronze:crafting/bronze_ingot"
+    ]
+  }
+}

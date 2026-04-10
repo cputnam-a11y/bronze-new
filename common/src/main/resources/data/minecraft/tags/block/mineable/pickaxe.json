@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "bronze:tin_ore_block",
+    "bronze:deepslate_tin_ore_block",
+    "bronze:raw_tin_block",
+    "bronze:bronze_blend_block",
+    "bronze:tin_block",
+    "bronze:bronze_block",
+    "bronze:bronze_door_block",
+    "bronze:bronze_trapdoor_block",
+    "bronze:chiseled_tin",
+    "bronze:tin_tiles",
+    "bronze:cut_tin",
+    "bronze:cut_tin_stairs",
+    "bronze:cut_tin_slab",
+    "bronze:tin_framed_glass"
+  ]
+}

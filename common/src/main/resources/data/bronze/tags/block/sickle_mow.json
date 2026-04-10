@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:short_grass",
+    "minecraft:tall_grass",
+    "minecraft:short_dry_grass",
+    "minecraft:tall_dry_grass",
+    "minecraft:fern",
+    "minecraft:large_fern",
+    "minecraft:dead_bush",
+    "minecraft:lily_pad",
+    "minecraft:leaf_litter",
+    "minecraft:nether_sprouts",
+    "minecraft:small_dripleaf",
+    "minecraft:bush",
+    {
+      "id": "farmersdelight:sandy_shrub",
+      "required": false
+    },
+    {
+      "id": "enderscape:veiled_leaf_pile",
+      "required": false
+    },
+    {
+      "id": "enderscape:dry_end_growth",
+      "required": false
+    },
+    {
+      "id": "enderscape:chorus_sprouts",
+      "required": false
+    },
+    {
+      "id": "enderscape:wisp_sprouts",
+      "required": false
+    },
+    {
+      "id": "enderscape:wisp_growth",
+      "required": false
+    }
+  ]
+}

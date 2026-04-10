@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "got_tin_nuggets": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bronze:tin_nugget"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "got_tin_nuggets"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bronze:crafting/tin_ingot_from_nuggets"
+    ]
+  }
+}

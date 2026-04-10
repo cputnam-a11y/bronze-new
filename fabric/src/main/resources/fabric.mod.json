@@ -18,10 +18,10 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleModFabric"
+          "com.khazoda.bronze.BronzeFabric"
         ],
         "fabric-datagen": [
-            "com.example.examplemod.datagen.ExampleModDataGenerator"
+            "com.khazoda.bronze.datagen.BronzeModDataGenerator"
         ]
     },
     "mixins": [

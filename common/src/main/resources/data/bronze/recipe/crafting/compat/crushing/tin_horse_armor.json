@@ -1,0 +1,43 @@
+{
+  "type": "create:crushing",
+  "ingredient": "bronze:tin_horse_armor",
+  "processing_time": 200,
+  "results": [
+    {
+      "count": 2,
+      "id": "bronze:tin_ingot"
+    },
+    {
+      "chance": 0.5,
+      "id": "minecraft:leather"
+    },
+    {
+      "chance": 0.5,
+      "id": "bronze:tin_ingot"
+    },
+    {
+      "chance": 0.25,
+      "count": 2,
+      "id": "minecraft:string"
+    },
+    {
+      "chance": 0.25,
+      "count": 4,
+      "id": "bronze:tin_nugget"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ]
+}

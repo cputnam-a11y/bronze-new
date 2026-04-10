@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "bronze:bronze_sword",
+    "bronze:bronze_axe",
+    "bronze:tin_sword",
+    "bronze:tin_axe"
+  ]
+}

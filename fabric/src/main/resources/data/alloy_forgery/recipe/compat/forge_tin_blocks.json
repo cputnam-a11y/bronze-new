@@ -1,0 +1,35 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "alloy_forgery"
+      ]
+    }
+  ],
+  "type": "alloy_forgery:forging",
+  "fuel_per_tick": 45,
+  "inputs": [
+    {
+      "count": 2,
+      "tag": "c:storage_blocks/raw_tin"
+    }
+  ],
+  "min_forge_tier": 1,
+  "output": {
+    "count": 3,
+    "priority": [
+      "bronze:tin_block",
+      "mythicmetals:tin_block",
+      "techreborn:tin_block",
+      "indrev:tin_block",
+      "modern_industrialization:tin_block"
+    ],
+    "tag": "c:storage_blocks/tin"
+  },
+  "overrides": {
+    "2+": {
+      "count": 4
+    }
+  }
+}

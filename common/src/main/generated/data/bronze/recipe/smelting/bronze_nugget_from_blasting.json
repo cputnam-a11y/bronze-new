@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.1,
+  "ingredient": [
+    "bronze:bronze_pickaxe",
+    "bronze:bronze_shovel",
+    "bronze:bronze_axe",
+    "bronze:bronze_hoe",
+    "bronze:bronze_sword",
+    "bronze:bronze_spear",
+    "bronze:bronze_helmet",
+    "bronze:bronze_chestplate",
+    "bronze:bronze_leggings",
+    "bronze:bronze_boots",
+    "bronze:bronze_horse_armor",
+    "bronze:bronze_nautilus_armor"
+  ],
+  "result": {
+    "id": "bronze:bronze_nugget"
+  }
+}

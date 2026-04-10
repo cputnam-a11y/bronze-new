@@ -1,0 +1,38 @@
+{
+  "type": "create:crushing",
+  "ingredient": "bronze:bronze_blend",
+  "processing_time": 400,
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:raw_copper"
+    },
+    {
+      "chance": 0.75,
+      "id": "minecraft:raw_copper"
+    },
+    {
+      "chance": 0.9,
+      "id": "bronze:raw_tin"
+    },
+    {
+      "chance": 0.75,
+      "count": 5,
+      "id": "create:experience_nugget"
+    }
+  ],
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ]
+}

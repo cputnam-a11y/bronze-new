@@ -1,0 +1,26 @@
+{
+  "parent": "bronze:bronze/got_bronze_blend",
+  "criteria": {
+    "got_bronze_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bronze:bronze_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "got_bronze_ingot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bronze:crafting/compat/bronze_knife"
+    ]
+  },
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,56 @@
+{
+  "parent": "minecraft:story/upgrade_tools",
+  "criteria": {
+    "got_tin_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bronze:tin_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.bronze.got_tin_ingot.description"
+    },
+    "icon": {
+      "id": "bronze:tin_ingot"
+    },
+    "title": {
+      "translate": "advancement.bronze.got_tin_ingot.title"
+    }
+  },
+  "requirements": [
+    [
+      "got_tin_ingot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bronze:crafting/tin_block",
+      "bronze:crafting/tin_nugget",
+      "bronze:smelting/tin_nugget_from_smelting",
+      "bronze:smelting/tin_nugget_from_blasting",
+      "bronze:crafting/tin_helmet",
+      "bronze:crafting/tin_chestplate",
+      "bronze:crafting/tin_leggings",
+      "bronze:crafting/tin_boots",
+      "bronze:crafting/tin_sword",
+      "bronze:crafting/tin_spear",
+      "bronze:crafting/tin_pickaxe",
+      "bronze:crafting/tin_shovel",
+      "bronze:crafting/tin_axe",
+      "bronze:crafting/tin_hoe",
+      "bronze:stonecutting/chiseled_tin_from_tin_block",
+      "bronze:stonecutting/cut_tin_from_tin_block",
+      "bronze:stonecutting/cut_tin_slab_from_tin_block",
+      "bronze:stonecutting/cut_tin_stairs_from_tin_block",
+      "bronze:stonecutting/tin_tiles_from_tin_block",
+      "bronze:crafting/tin_framed_glass"
+    ]
+  },
+  "sends_telemetry_event": true
+}

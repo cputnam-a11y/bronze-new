@@ -1,0 +1,53 @@
+{
+  "parent": "bronze:bronze/got_bronze_blend",
+  "criteria": {
+    "got_bronze_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bronze:bronze_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.bronze.got_bronze_ingot.description"
+    },
+    "icon": {
+      "id": "bronze:bronze_ingot"
+    },
+    "title": {
+      "translate": "advancement.bronze.got_bronze_ingot.title"
+    }
+  },
+  "requirements": [
+    [
+      "got_bronze_ingot"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "bronze:crafting/bronze_helmet",
+      "bronze:crafting/bronze_chestplate",
+      "bronze:crafting/bronze_leggings",
+      "bronze:crafting/bronze_boots",
+      "bronze:crafting/bronze_sword",
+      "bronze:crafting/bronze_spear",
+      "bronze:crafting/bronze_pickaxe",
+      "bronze:crafting/bronze_shovel",
+      "bronze:crafting/bronze_axe",
+      "bronze:crafting/bronze_hoe",
+      "bronze:crafting/bronze_nugget",
+      "bronze:smelting/bronze_nugget_from_smelting",
+      "bronze:smelting/bronze_nugget_from_blasting",
+      "bronze:crafting/bronze_sickle",
+      "bronze:crafting/bronze_door",
+      "bronze:crafting/bronze_trapdoor",
+      "bronze:crafting/bronze_block"
+    ]
+  },
+  "sends_telemetry_event": true
+}
