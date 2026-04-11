@@ -8,10 +8,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
@@ -72,6 +80,61 @@ public final class KhazReg {
   public <T extends Item> Entry<T> item(String name, ItemFactory<T> factory) {
     ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, ID(name));
     return register(Registries.ITEM, name, () -> factory.create(key, new Item.Properties().setId(key)));
+  }
+
+  /* Example: reg.tool("sickle", BronzeMaterial.TOOL, SICKLE_MINEABLE, 1.0F, -2.8F, 1.0F) */
+  public Entry<Item> tool(String name, ToolMaterial material, TagKey<Block> mineableBlocks, float attackDamage, float attackSpeed, float miningSpeed) {
+    return item(name, (key, props) -> new Item(props.tool(material, mineableBlocks, attackDamage, attackSpeed, miningSpeed)));
+  }
+
+  /* Example: reg.sword("bronze_sword", BronzeMaterial.TOOL, 3.0F, -2.4F) */
+  public Entry<Item> sword(String name, ToolMaterial material, float attackDamage, float attackSpeed) {
+    return item(name, (key, props) -> new Item(props.sword(material, attackDamage, attackSpeed)));
+  }
+
+  /* Example: reg.spear("bronze_spear", BronzeMaterial.TOOL, 0.95F, 0.95F, 0.6F, 2.5F, 8.0F, 6.75F, 5.1F, 11.25F, 4.6F) */
+  public Entry<Item> spear(String name, ToolMaterial material, float attackDamage, float attackSpeed, float range, float throwPower, float minThrowDamage, float maxThrowDamage, float entityDamage, float durabilityMultiplier, float returnSpeed) {
+    return item(name, (key, props) -> new Item(props.spear(material, attackDamage, attackSpeed, range, throwPower, minThrowDamage, maxThrowDamage, entityDamage, durabilityMultiplier, returnSpeed)));
+  }
+
+  /* Example: reg.pickaxe("bronze_pickaxe", BronzeMaterial.TOOL, 1.0F, -2.8F) */
+  public Entry<Item> pickaxe(String name, ToolMaterial material, float attackDamage, float attackSpeed) {
+    return item(name, (key, props) -> new Item(props.pickaxe(material, attackDamage, attackSpeed)));
+  }
+
+  /* Example: reg.axe("bronze_axe", BronzeMaterial.TOOL, 6.0F, -3.1F) */
+  public Entry<AxeItem> axe(String name, ToolMaterial material, float attackDamage, float attackSpeed) {
+    return item(name, (key, props) -> new AxeItem(material, attackDamage, attackSpeed, props));
+  }
+
+  /* Example: reg.shovel("bronze_shovel", BronzeMaterial.TOOL, 1.5F, -3.0F) */
+  public Entry<ShovelItem> shovel(String name, ToolMaterial material, float attackDamage, float attackSpeed) {
+    return item(name, (key, props) -> new ShovelItem(material, attackDamage, attackSpeed, props));
+  }
+
+  /* Example: reg.hoe("bronze_hoe", BronzeMaterial.TOOL, -2.0F, 0.0F) */
+  public Entry<HoeItem> hoe(String name, ToolMaterial material, float attackDamage, float attackSpeed) {
+    return item(name, (key, props) -> new HoeItem(material, attackDamage, attackSpeed, props));
+  }
+
+  /* Example: reg.humanoidArmor("bronze_helmet", BronzeMaterial.ARMOR, ArmorType.HELMET) */
+  public Entry<Item> humanoidArmor(String name, ArmorMaterial material, ArmorType armorType) {
+    return item(name, (key, props) -> new Item(props.humanoidArmor(material, armorType)));
+  }
+
+  /* Example: reg.horseArmor("bronze_horse_armor", BronzeMaterial.ARMOR) */
+  public Entry<Item> horseArmor(String name, ArmorMaterial material) {
+    return item(name, (key, props) -> new Item(props.horseArmor(material)));
+  }
+
+  /* Example: reg.nautilusArmor("bronze_nautilus_armor", BronzeMaterial.ARMOR) */
+  public Entry<Item> nautilusArmor(String name, ArmorMaterial material) {
+    return item(name, (key, props) -> new Item(props.nautilusArmor(material)));
+  }
+
+  /* Example: reg.wolfArmor("bronze_wolf_armor", BronzeMaterial.ARMOR) */
+  public Entry<Item> wolfArmor(String name, ArmorMaterial material) {
+    return item(name, (key, props) -> new Item(props.wolfArmor(material)));
   }
 
   /* Example: reg.block("tin_block") */
@@ -249,6 +312,15 @@ public final class KhazReg {
       return supplier.get();
     }
 
+    @SuppressWarnings("unchecked")
+    public Entry<T> addToTab(List<Supplier<? extends ItemLike>> tabItems) {
+      if (!key.isFor(Registries.ITEM)) {
+        throw new IllegalStateException("Only item entries can be added to creative tabs: " + id);
+      }
+      tabItems.add((Supplier<? extends ItemLike>) this);
+      return this;
+    }
+
     @Override
     public String toString() {
       return "Entry[" + id + "]";
@@ -271,6 +343,11 @@ public final class KhazReg {
 
     public Entry<I> item() {
       return item;
+    }
+
+    public BlockEntry<B, I> addToTab(List<Supplier<? extends ItemLike>> tabItems) {
+      tabItems.add(item);
+      return this;
     }
 
     @Override
