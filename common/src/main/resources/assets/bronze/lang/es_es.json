@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "Bronce",
+  "itemGroup.bronze.main": "Bronce",
   "block.bronze.tin_ore_block": "Mena de estaño",
   "block.bronze.deepslate_tin_ore_block": "Mena de estaño de pizzara profunda",
   "item.bronze.raw_tin": "Estaño en bruto",

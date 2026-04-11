@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "Бронза",
+  "itemGroup.bronze.main": "Бронза",
   "block.bronze.tin_ore_block": "Оловянная руда",
   "block.bronze.deepslate_tin_ore_block": "Оловянноносный глубинный сланец",
   "item.bronze.raw_tin": "Рудное олово",

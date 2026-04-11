@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "Bronz",
+  "itemGroup.bronze.main": "Bronz",
   "block.bronze.tin_ore_block": "Kalay Cevheri",
   "block.bronze.deepslate_tin_ore_block": "Derin Kayrak Kalay Cevheri",
   "item.bronze.raw_tin": "Ham Kalay",
@@ -24,7 +24,7 @@
   "item.bronze.bronze_sickle": "Orak",
   "block.bronze.bronze_door_block": "Bronz Kapı",
   "block.bronze.bronze_trapdoor_block": "Bronz Tuzak Kapısı",
-  "advancement.bronze.got_tin_ingot.description": "Tin Külçesi elde et",
+  "advancement.bronze.got_tin_ingot.description": "Tin Külçesi elde et"
   "advancement.bronze.got_bronze_ingot.title": "Karıştırıldı",
   "advancement.bronze.got_bronze_ingot.description": "Bronz Külçesi elde et",
   "advancement.bronze.got_bronze_chestplate.title": "Tam-Bronz Ceket",

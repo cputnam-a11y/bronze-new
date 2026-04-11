@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "청동",
+  "itemGroup.bronze.main": "청동",
   "block.bronze.tin_ore_block": "주석 광석",
   "block.bronze.deepslate_tin_ore_block": "심층암 주석 광석",
   "item.bronze.raw_tin": "주석 원석",

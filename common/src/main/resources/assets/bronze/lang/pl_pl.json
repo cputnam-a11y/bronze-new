@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "Brąz",
+  "itemGroup.bronze.main": "Brąz",
   "block.bronze.tin_ore_block": "Złoże cyny",
   "block.bronze.deepslate_tin_ore_block": "Łupkowe złoże cyny",
   "item.bronze.raw_tin": "Ruda cyny",

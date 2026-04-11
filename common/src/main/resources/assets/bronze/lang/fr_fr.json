@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "Bronze",
+  "itemGroup.bronze.main": "Bronze",
   "block.bronze.tin_ore_block": "Minerai d'étain",
   "block.bronze.deepslate_tin_ore_block": "Minerai d'étain des abysses",
   "item.bronze.raw_tin": "Étain brut",
@@ -56,4 +56,4 @@
   "advancement.bronze.got_cut_tin.description": "Obtenir un bloc d'étain taillé",
   "resource_pack.bronze.bronze_ctm.name": "Bronze Mod Textures Connectées",
   "resource_pack.bronze.bronze_ctm.description": "Ajout de la prise en charge des textures connectées pour certains blocs (built-in : Bronze)"
-}
+  }

@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "Bronze",
+  "itemGroup.bronze.main": "Bronze",
   "block.bronze.tin_ore_block": "Tin Ore",
   "block.bronze.deepslate_tin_ore_block": "Deepslate Tin Ore",
   "item.bronze.raw_tin": "Raw Tin",
@@ -57,7 +57,6 @@
   "advancement.bronze.got_cut_tin.description": "Obtain a Block of Cut Tin",
   "resource_pack.bronze.bronze_ctm.name": "Bronze Mod Connected Textures",
   "resource_pack.bronze.bronze_ctm.description": "Adds connected textures support for some blocks (built-in: Bronze)",
-  "item.bronze.tin_knife": "Tin Knife",
   "item.bronze.bronze_knife": "Bronze Knife",
   "item.bronze.tin_nugget": "Tin Nugget",
   "item.bronze.tin_helmet": "Tin Helmet",
@@ -70,8 +69,5 @@
   "item.bronze.tin_shovel": "Tin Shovel",
   "item.bronze.tin_hoe": "Tin Hoe",
   "item.bronze.tin_horse_armor": "Tin Horse Armor",
-  "item.bronze.tin_nautilus_armor": "Tin Nautilus Armor",
-  "item.bronze.bronze_nautilus_armor": "Bronze Nautilus Armor",
-  "item.bronze.tin_spear": "Tin Spear",
-  "item.bronze.bronze_spear": "Bronze Spear"
+  "item.bronze.tin_knife": "Tin Knife"
 }

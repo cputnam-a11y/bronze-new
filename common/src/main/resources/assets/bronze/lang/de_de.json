@@ -1,5 +1,5 @@
 {
-  "bronze.itemGroup": "Bronze",
+  "itemGroup.bronze.main": "Bronze",
   "block.bronze.tin_ore_block": "Zinnerz",
   "block.bronze.deepslate_tin_ore_block": "Tiefenschiefer-Zinnerz",
   "item.bronze.raw_tin": "Rohzinn",
