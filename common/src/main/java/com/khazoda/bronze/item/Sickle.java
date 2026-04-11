@@ -104,7 +104,7 @@ public class Sickle extends Item {
       BlockState baseState = level.getBlockState(basePos);
 
       level.playSound(null, basePos, baseState.getSoundType().getBreakSound(), SoundSource.BLOCKS, 1.0F, 1.0F);
-      player.swing(context.getHand());
+      player.swing(context.getHand(), true);
       ((ServerLevel) level).sendParticles(ParticleTypes.SWEEP_ATTACK,
           basePos.getX() + 0.5, basePos.getY() + 0.5, basePos.getZ() + 0.5,
           1, 0, 0, 0, 0);
@@ -116,7 +116,7 @@ public class Sickle extends Item {
     } else if ((state.is(SICKLE_PLUCK_BLOCKS))) {
       level.playSound(null, pos, state.getSoundType().getBreakSound(), SoundSource.BLOCKS, 0.8F, 1.0F);
       level.playSound(null, pos, SoundEvents.BUBBLE_POP, SoundSource.BLOCKS, 1.0F, 1.0F);
-      player.swing(context.getHand());
+      player.swing(context.getHand(), true);
       ((ServerLevel) level).sendParticles(ParticleTypes.SWEEP_ATTACK,
           pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
           1, 0, 0, 0, 0);

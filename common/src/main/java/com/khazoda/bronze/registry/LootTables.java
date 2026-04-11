@@ -1,6 +1,5 @@
 package com.khazoda.bronze.registry;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
@@ -14,16 +13,42 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static net.minecraft.core.registries.Registries.LOOT_TABLE;
 import static net.minecraft.world.level.storage.loot.BuiltInLootTables.*;
 
 public class LootTables {
   private static final Map<ResourceKey<LootTable>, LootConfig> LOOT_TABLE_CONFIGS = new HashMap<>();
+  private static final Set<Item> ENCHANTABLE_LOOT_ITEMS = new HashSet<>();
 
   static {
+    ENCHANTABLE_LOOT_ITEMS.addAll(List.of(
+        MainRegistry.TIN_SWORD.get(),
+        MainRegistry.TIN_SPEAR.get(),
+        MainRegistry.TIN_AXE.get(),
+        MainRegistry.TIN_PICKAXE.get(),
+        MainRegistry.TIN_SHOVEL.get(),
+        MainRegistry.TIN_HOE.get(),
+        MainRegistry.TIN_HELMET.get(),
+        MainRegistry.TIN_CHESTPLATE.get(),
+        MainRegistry.TIN_LEGGINGS.get(),
+        MainRegistry.TIN_BOOTS.get(),
+        MainRegistry.BRONZE_SWORD.get(),
+        MainRegistry.BRONZE_SPEAR.get(),
+        MainRegistry.BRONZE_AXE.get(),
+        MainRegistry.BRONZE_PICKAXE.get(),
+        MainRegistry.BRONZE_SHOVEL.get(),
+        MainRegistry.BRONZE_HOE.get(),
+        MainRegistry.BRONZE_HELMET.get(),
+        MainRegistry.BRONZE_CHESTPLATE.get(),
+        MainRegistry.BRONZE_LEGGINGS.get(),
+        MainRegistry.BRONZE_BOOTS.get()
+    ));
+
     LOOT_TABLE_CONFIGS.put(ABANDONED_MINESHAFT, new LootConfig(List.of(MainRegistry.TIN_PICKAXE.get(), MainRegistry.BRONZE_INGOT.get()), false, false));
     LOOT_TABLE_CONFIGS.put(ANCIENT_CITY, new LootConfig(List.of(MainRegistry.BRONZE_LEGGINGS.get(), MainRegistry.BRONZE_HOE.get()), true, true));
     LOOT_TABLE_CONFIGS.put(BASTION_BRIDGE, new LootConfig(List.of(MainRegistry.BRONZE_INGOT.get(), MainRegistry.BRONZE_NUGGET.get()), false, false));
@@ -119,9 +144,7 @@ public class LootTables {
   }
 
   private static boolean isEnchantable(Item item) {
-    return item.components().has(DataComponents.TOOL) ||
-        item.components().has(DataComponents.WEAPON) ||
-        item.components().has(DataComponents.EQUIPPABLE);
+    return ENCHANTABLE_LOOT_ITEMS.contains(item);
   }
 
   private record LootConfig(List<Item> items, boolean applyDamage, boolean enchanted) {

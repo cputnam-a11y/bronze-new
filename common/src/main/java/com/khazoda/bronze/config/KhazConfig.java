@@ -1,7 +1,7 @@
-package com.example.examplemod.config;
+package com.khazoda.bronze.config;
 
-import com.example.examplemod.Constants;
-import com.example.examplemod.platform.Services;
+import com.khazoda.bronze.Constants;
+import com.khazoda.bronze.platform.Services;
 
 import java.io.IOException;
 import java.io.Reader;

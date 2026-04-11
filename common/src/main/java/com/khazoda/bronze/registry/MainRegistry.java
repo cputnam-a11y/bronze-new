@@ -1,11 +1,7 @@
 package com.khazoda.bronze.registry;
 
 import com.khazoda.bronze.Constants;
-import com.khazoda.bronze.block.BronzeDoor;
-import com.khazoda.bronze.block.BronzeTrapdoor;
-import com.khazoda.bronze.block.CutTinSlab;
-import com.khazoda.bronze.block.CutTinStairs;
-import com.khazoda.bronze.block.TinFramedGlass;
+import com.khazoda.bronze.block.*;
 import com.khazoda.bronze.item.FarmersDelightKnife;
 import com.khazoda.bronze.item.Sickle;
 import com.khazoda.bronze.material.BronzeMaterial;
@@ -17,13 +13,7 @@ import com.khazoda.bronze.registry.helper.KhazReg.Entry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -33,67 +23,78 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.material.MapColor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class MainRegistry {
   private static boolean initialized;
   public static final KhazReg reg = new KhazReg(Constants.MOD_ID);
+  private static final List<Supplier<? extends ItemLike>> TAB = new ArrayList<>();
 
   /**
    * ==========[ Items ]==========
    */
-  public static final Entry<Item> RAW_TIN = reg.item("raw_tin");
-  public static final Entry<Item> TIN_NUGGET = reg.item("tin_nugget");
-  public static final Entry<Item> TIN_INGOT = reg.item("tin_ingot");
-  public static final Entry<Item> TIN_HORSE_ARMOR = reg.item("tin_horse_armor", (key, props) -> new Item(props.horseArmor(TinMaterial.ARMOR)));
-  public static final Entry<Item> TIN_NAUTILUS_ARMOR = reg.item("tin_nautilus_armor", (key, props) -> new Item(props.nautilusArmor(TinMaterial.ARMOR)));
-  public static final Entry<Item> TIN_SWORD = reg.item("tin_sword", (key, props) -> new Item(props.sword(TinMaterial.TOOL, 3.0F, -2.4F)));
-  public static final Entry<Item> TIN_SPEAR = reg.item("tin_spear", (key, props) -> new Item(props.spear(TinMaterial.TOOL, 0.85F, 0.82F, 0.65F, 4.0F, 9.0F, 8.25F, 5.1F, 12.5F, 4.6F)));
-  public static final Entry<AxeItem> TIN_AXE = reg.item("tin_axe", (key, props) -> new AxeItem(TinMaterial.TOOL, 7F, -3.1F, props));
-  public static final Entry<Item> TIN_PICKAXE = reg.item("tin_pickaxe", (key, props) -> new Item(props.pickaxe(TinMaterial.TOOL, 1.0F, -2.8F)));
-  public static final Entry<ShovelItem> TIN_SHOVEL = reg.item("tin_shovel", (key, props) -> new ShovelItem(TinMaterial.TOOL, 1.5F, -3.0F, props));
-  public static final Entry<HoeItem> TIN_HOE = reg.item("tin_hoe", (key, props) -> new HoeItem(TinMaterial.TOOL, -2.0F, 0.0F, props));
-  public static final Entry<Item> TIN_HELMET = reg.item("tin_helmet", (key, props) -> new Item(props.humanoidArmor(TinMaterial.ARMOR, ArmorType.HELMET)));
-  public static final Entry<Item> TIN_CHESTPLATE = reg.item("tin_chestplate", (key, props) -> new Item(props.humanoidArmor(TinMaterial.ARMOR, ArmorType.CHESTPLATE)));
-  public static final Entry<Item> TIN_LEGGINGS = reg.item("tin_leggings", (key, props) -> new Item(props.humanoidArmor(TinMaterial.ARMOR, ArmorType.LEGGINGS)));
-  public static final Entry<Item> TIN_BOOTS = reg.item("tin_boots", (key, props) -> new Item(props.humanoidArmor(TinMaterial.ARMOR, ArmorType.BOOTS)));
+  public static final Entry<Item> RAW_TIN = reg.item("raw_tin").addToTab(TAB);
+  public static final Entry<Item> TIN_NUGGET = reg.item("tin_nugget").addToTab(TAB);
+  public static final Entry<Item> TIN_INGOT = reg.item("tin_ingot").addToTab(TAB);
+  public static final Entry<Item> TIN_HORSE_ARMOR = reg.horseArmor("tin_horse_armor", TinMaterial.ARMOR).addToTab(TAB);
+  public static final Entry<Item> TIN_NAUTILUS_ARMOR = reg.nautilusArmor("tin_nautilus_armor", TinMaterial.ARMOR).addToTab(TAB);
+  public static final Entry<Item> TIN_SWORD = reg.sword("tin_sword", TinMaterial.TOOL, 3.0F, -2.4F).addToTab(TAB);
+  public static final Entry<Item> TIN_SPEAR = reg.spear("tin_spear", TinMaterial.TOOL, 0.85F, 0.82F, 0.65F, 4.0F, 9.0F, 8.25F, 5.1F, 12.5F, 4.6F).addToTab(TAB);
+  public static final Entry<AxeItem> TIN_AXE = reg.axe("tin_axe", TinMaterial.TOOL, 7F, -3.1F).addToTab(TAB);
+  public static final Entry<Item> TIN_PICKAXE = reg.pickaxe("tin_pickaxe", TinMaterial.TOOL, 1.0F, -2.8F).addToTab(TAB);
+  public static final Entry<ShovelItem> TIN_SHOVEL = reg.shovel("tin_shovel", TinMaterial.TOOL, 1.5F, -3.0F).addToTab(TAB);
+  public static final Entry<HoeItem> TIN_HOE = reg.hoe("tin_hoe", TinMaterial.TOOL, -2.0F, 0.0F).addToTab(TAB);
+  public static final Entry<Item> TIN_HELMET = reg.humanoidArmor("tin_helmet", TinMaterial.ARMOR, ArmorType.HELMET).addToTab(TAB);
+  public static final Entry<Item> TIN_CHESTPLATE = reg.humanoidArmor("tin_chestplate", TinMaterial.ARMOR, ArmorType.CHESTPLATE).addToTab(TAB);
+  public static final Entry<Item> TIN_LEGGINGS = reg.humanoidArmor("tin_leggings", TinMaterial.ARMOR, ArmorType.LEGGINGS).addToTab(TAB);
+  public static final Entry<Item> TIN_BOOTS = reg.humanoidArmor("tin_boots", TinMaterial.ARMOR, ArmorType.BOOTS).addToTab(TAB);
 
-  public static final Entry<Item> BRONZE_BLEND = reg.item("bronze_blend");
-  public static final Entry<Item> BRONZE_NUGGET = reg.item("bronze_nugget");
-  public static final Entry<Item> BRONZE_INGOT = reg.item("bronze_ingot");
-  public static final Entry<Item> BRONZE_HORSE_ARMOR = reg.item("bronze_horse_armor", (key, props) -> new Item(props.horseArmor(BronzeMaterial.ARMOR)));
-  public static final Entry<Item> BRONZE_NAUTILUS_ARMOR = reg.item("bronze_nautilus_armor", (key, props) -> new Item(props.nautilusArmor(BronzeMaterial.ARMOR)));
-  public static final Entry<Item> BRONZE_SWORD = reg.item("bronze_sword", (key, props) -> new Item(props.sword(BronzeMaterial.TOOL, 3.0F, -2.4F)));
-  public static final Entry<Item> BRONZE_SPEAR = reg.item("bronze_spear", (key, props) -> new Item(props.spear(BronzeMaterial.TOOL, 0.95F, 0.95F, 0.6F, 2.5F, 8.0F, 6.75F, 5.1F, 11.25F, 4.6F)));
-  public static final Entry<AxeItem> BRONZE_AXE = reg.item("bronze_axe", (key, props) -> new AxeItem(BronzeMaterial.TOOL, 6F, -3.1F, props));
-  public static final Entry<Item> BRONZE_PICKAXE = reg.item("bronze_pickaxe", (key, props) -> new Item(props.pickaxe(BronzeMaterial.TOOL, 1.0F, -2.8F)));
-  public static final Entry<ShovelItem> BRONZE_SHOVEL = reg.item("bronze_shovel", (key, props) -> new ShovelItem(BronzeMaterial.TOOL, 1.5F, -3.0F, props));
-  public static final Entry<HoeItem> BRONZE_HOE = reg.item("bronze_hoe", (key, props) -> new HoeItem(BronzeMaterial.TOOL, -2.0F, 0.0F, props));
-  public static final Entry<Sickle> SICKLE = reg.item("bronze_sickle", (key, props) -> new Sickle(props.durability(238).component(DataComponents.TOOL, Sickle.createToolProperties())));
-  public static final Entry<Item> BRONZE_HELMET = reg.item("bronze_helmet", (key, props) -> new Item(props.humanoidArmor(BronzeMaterial.ARMOR, ArmorType.HELMET)));
-  public static final Entry<Item> BRONZE_CHESTPLATE = reg.item("bronze_chestplate", (key, props) -> new Item(props.humanoidArmor(BronzeMaterial.ARMOR, ArmorType.CHESTPLATE)));
-  public static final Entry<Item> BRONZE_LEGGINGS = reg.item("bronze_leggings", (key, props) -> new Item(props.humanoidArmor(BronzeMaterial.ARMOR, ArmorType.LEGGINGS)));
-  public static final Entry<Item> BRONZE_BOOTS = reg.item("bronze_boots", (key, props) -> new Item(props.humanoidArmor(BronzeMaterial.ARMOR, ArmorType.BOOTS)));
+  public static final Entry<Item> BRONZE_BLEND = reg.item("bronze_blend").addToTab(TAB);
+  public static final Entry<Item> BRONZE_NUGGET = reg.item("bronze_nugget").addToTab(TAB);
+  public static final Entry<Item> BRONZE_INGOT = reg.item("bronze_ingot").addToTab(TAB);
+  public static final Entry<Item> BRONZE_HORSE_ARMOR = reg.horseArmor("bronze_horse_armor", BronzeMaterial.ARMOR).addToTab(TAB);
+  public static final Entry<Item> BRONZE_NAUTILUS_ARMOR = reg.nautilusArmor("bronze_nautilus_armor", BronzeMaterial.ARMOR).addToTab(TAB);
+  public static final Entry<Item> BRONZE_SWORD = reg.sword("bronze_sword", BronzeMaterial.TOOL, 3.0F, -2.4F).addToTab(TAB);
+  public static final Entry<Item> BRONZE_SPEAR = reg.spear("bronze_spear", BronzeMaterial.TOOL, 0.95F, 0.95F, 0.6F, 2.5F, 8.0F, 6.75F, 5.1F, 11.25F, 4.6F).addToTab(TAB);
+  public static final Entry<AxeItem> BRONZE_AXE = reg.axe("bronze_axe", BronzeMaterial.TOOL, 6F, -3.1F).addToTab(TAB);
+  public static final Entry<Item> BRONZE_PICKAXE = reg.pickaxe("bronze_pickaxe", BronzeMaterial.TOOL, 1.0F, -2.8F).addToTab(TAB);
+  public static final Entry<ShovelItem> BRONZE_SHOVEL = reg.shovel("bronze_shovel", BronzeMaterial.TOOL, 1.5F, -3.0F).addToTab(TAB);
+  public static final Entry<HoeItem> BRONZE_HOE = reg.hoe("bronze_hoe", BronzeMaterial.TOOL, -2.0F, 0.0F).addToTab(TAB);
+  public static final Entry<Sickle> SICKLE = reg.item("bronze_sickle", (key, props) -> new Sickle(props.durability(238).component(DataComponents.TOOL, Sickle.createToolProperties()))).addToTab(TAB);
+  public static final Entry<Item> BRONZE_HELMET = reg.humanoidArmor("bronze_helmet", BronzeMaterial.ARMOR, ArmorType.HELMET).addToTab(TAB);
+  public static final Entry<Item> BRONZE_CHESTPLATE = reg.humanoidArmor("bronze_chestplate", BronzeMaterial.ARMOR, ArmorType.CHESTPLATE).addToTab(TAB);
+  public static final Entry<Item> BRONZE_LEGGINGS = reg.humanoidArmor("bronze_leggings", BronzeMaterial.ARMOR, ArmorType.LEGGINGS).addToTab(TAB);
+  public static final Entry<Item> BRONZE_BOOTS = reg.humanoidArmor("bronze_boots", BronzeMaterial.ARMOR, ArmorType.BOOTS).addToTab(TAB);
   public static final Entry<FarmersDelightKnife> BRONZE_KNIFE = reg.item("bronze_knife", (key, props) -> new FarmersDelightKnife(FarmersDelightKnife.createProperties(key, BronzeMaterial.TOOL)));
   public static final Entry<FarmersDelightKnife> TIN_KNIFE = reg.item("tin_knife", (key, props) -> new FarmersDelightKnife(FarmersDelightKnife.createProperties(key, TinMaterial.TOOL)));
+
+  static {
+    if (Services.PLATFORM.isModLoaded("farmersdelight")) {
+      BRONZE_KNIFE.addToTab(TAB);
+      TIN_KNIFE.addToTab(TAB);
+    }
+  }
 
   /**
    * ==========[ Blocks + BlockItems ]==========
    */
-  public static final BlockEntry<Block, BlockItem> TIN_ORE = blockWithItem("tin_ore_block", 2.5F, 0.0F, MapColor.STONE, NoteBlockInstrument.BASEDRUM, SoundType.STONE);
-  public static final BlockEntry<Block, BlockItem> DEEPSLATE_TIN_ORE = blockWithItem("deepslate_tin_ore_block", 3.5F, 0.0F, MapColor.DEEPSLATE, NoteBlockInstrument.BASEDRUM, SoundType.DEEPSLATE);
-  public static final BlockEntry<Block, BlockItem> RAW_TIN_BLOCK = blockWithItem("raw_tin_block", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.BASEDRUM, SoundType.COPPER);
-  public static final BlockEntry<Block, BlockItem> TIN_BLOCK = blockWithItem("tin_block", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER);
-  public static final BlockEntry<Block, BlockItem> CHISELED_TIN = blockWithItem("chiseled_tin", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER);
-  public static final BlockEntry<Block, BlockItem> CUT_TIN = blockWithItem("cut_tin", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER);
-  public static final BlockEntry<Block, BlockItem> TIN_TILES = blockWithItem("tin_tiles", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER);
-  public static final BlockEntry<Block, BlockItem> BRONZE_BLEND_BLOCK = blockWithItem("bronze_blend_block", 2.5F, 0.0F, MapColor.DIRT, NoteBlockInstrument.BASEDRUM, SoundType.STONE);
-  public static final BlockEntry<Block, BlockItem> BRONZE_BLOCK = blockWithItem("bronze_block", 3.5F, 0.0F, MapColor.GOLD, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.METAL);
-  public static final BlockEntry<TinFramedGlass, BlockItem> TIN_FRAMED_GLASS = reg.blockWithItem("tin_framed_glass", (key, props) -> new TinFramedGlass(key), BlockItem::new);
-  public static final BlockEntry<CutTinSlab, BlockItem> CUT_TIN_SLAB = reg.blockWithItem("cut_tin_slab", (key, props) -> new CutTinSlab(BlockBehaviour.Properties.ofFullCopy(CUT_TIN.get()).setId(key)), BlockItem::new);
-  public static final BlockEntry<CutTinStairs, BlockItem> CUT_TIN_STAIRS = reg.blockWithItem("cut_tin_stairs", (key, props) -> new CutTinStairs(CUT_TIN.get().defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(CUT_TIN.get()).setId(key)), BlockItem::new);
-  public static final BlockEntry<BronzeTrapdoor, BlockItem> BRONZE_TRAPDOOR = reg.blockWithItem("bronze_trapdoor_block", (key, props) -> new BronzeTrapdoor(key), BlockItem::new);
-  public static final BlockEntry<BronzeDoor, BlockItem> BRONZE_DOOR = reg.blockWithItem("bronze_door_block", (key, props) -> new BronzeDoor(key), BlockItem::new);
+  public static final BlockEntry<Block, BlockItem> TIN_ORE = blockWithItem("tin_ore_block", 2.5F, 0.0F, MapColor.STONE, NoteBlockInstrument.BASEDRUM, SoundType.STONE).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> DEEPSLATE_TIN_ORE = blockWithItem("deepslate_tin_ore_block", 3.5F, 0.0F, MapColor.DEEPSLATE, NoteBlockInstrument.BASEDRUM, SoundType.DEEPSLATE).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> RAW_TIN_BLOCK = blockWithItem("raw_tin_block", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.BASEDRUM, SoundType.COPPER).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> TIN_BLOCK = blockWithItem("tin_block", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> CHISELED_TIN = blockWithItem("chiseled_tin", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> CUT_TIN = blockWithItem("cut_tin", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> TIN_TILES = blockWithItem("tin_tiles", 2.5F, 6.0F, MapColor.TERRACOTTA_WHITE, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.COPPER).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> BRONZE_BLEND_BLOCK = blockWithItem("bronze_blend_block", 2.5F, 0.0F, MapColor.DIRT, NoteBlockInstrument.BASEDRUM, SoundType.STONE).addToTab(TAB);
+  public static final BlockEntry<Block, BlockItem> BRONZE_BLOCK = blockWithItem("bronze_block", 3.5F, 0.0F, MapColor.GOLD, NoteBlockInstrument.IRON_XYLOPHONE, SoundType.METAL).addToTab(TAB);
+  public static final BlockEntry<TinFramedGlass, BlockItem> TIN_FRAMED_GLASS = reg.blockWithItem("tin_framed_glass", (key, props) -> new TinFramedGlass(key), BlockItem::new).addToTab(TAB);
+  public static final BlockEntry<CutTinSlab, BlockItem> CUT_TIN_SLAB = reg.blockWithItem("cut_tin_slab", (key, props) -> new CutTinSlab(BlockBehaviour.Properties.ofFullCopy(CUT_TIN.get()).setId(key)), BlockItem::new).addToTab(TAB);
+  public static final BlockEntry<CutTinStairs, BlockItem> CUT_TIN_STAIRS = reg.blockWithItem("cut_tin_stairs", (key, props) -> new CutTinStairs(CUT_TIN.get().defaultBlockState(), BlockBehaviour.Properties.ofFullCopy(CUT_TIN.get()).setId(key)), BlockItem::new).addToTab(TAB);
+  public static final BlockEntry<BronzeTrapdoor, BlockItem> BRONZE_TRAPDOOR = reg.blockWithItem("bronze_trapdoor_block", (key, props) -> new BronzeTrapdoor(key), BlockItem::new).addToTab(TAB);
+  public static final BlockEntry<BronzeDoor, BlockItem> BRONZE_DOOR = reg.blockWithItem("bronze_door_block", (key, props) -> new BronzeDoor(key), BlockItem::new).addToTab(TAB);
 
   /**
    * ==========[ Worldgen ]==========
@@ -116,72 +117,18 @@ public final class MainRegistry {
   }
 
   public static void addMainTabItems(Consumer<ItemLike> output) {
-    output.accept(BRONZE_SWORD.get());
-    output.accept(BRONZE_SPEAR.get());
-    output.accept(BRONZE_AXE.get());
-    output.accept(BRONZE_PICKAXE.get());
-    output.accept(BRONZE_SHOVEL.get());
-    output.accept(BRONZE_HOE.get());
-    output.accept(BRONZE_HELMET.get());
-    output.accept(BRONZE_CHESTPLATE.get());
-    output.accept(BRONZE_LEGGINGS.get());
-    output.accept(BRONZE_BOOTS.get());
-    output.accept(TIN_SWORD.get());
-    output.accept(TIN_SPEAR.get());
-    output.accept(TIN_AXE.get());
-    output.accept(TIN_PICKAXE.get());
-    output.accept(TIN_SHOVEL.get());
-    output.accept(TIN_HOE.get());
-    output.accept(TIN_HELMET.get());
-    output.accept(TIN_CHESTPLATE.get());
-    output.accept(TIN_LEGGINGS.get());
-    output.accept(TIN_BOOTS.get());
-    output.accept(SICKLE.get());
-    if (Services.PLATFORM.isModLoaded("farmersdelight")) {
-      output.accept(BRONZE_KNIFE.get());
-      output.accept(TIN_KNIFE.get());
+    for (Supplier<? extends ItemLike> item : TAB) {
+      output.accept(item.get());
     }
-
-    output.accept(RAW_TIN.get());
-    output.accept(TIN_NUGGET.get());
-    output.accept(TIN_INGOT.get());
-    output.accept(TIN_HORSE_ARMOR.get());
-    output.accept(TIN_NAUTILUS_ARMOR.get());
-
-    output.accept(BRONZE_BLEND.get());
-    output.accept(BRONZE_NUGGET.get());
-    output.accept(BRONZE_INGOT.get());
-    output.accept(BRONZE_HORSE_ARMOR.get());
-    output.accept(BRONZE_NAUTILUS_ARMOR.get());
-
-    output.accept(TIN_BLOCK.item().get());
-    output.accept(BRONZE_BLOCK.item().get());
-    output.accept(RAW_TIN_BLOCK.item().get());
-    output.accept(BRONZE_BLEND_BLOCK.item().get());
-    output.accept(TIN_ORE.item().get());
-    output.accept(DEEPSLATE_TIN_ORE.item().get());
-
-    output.accept(BRONZE_DOOR.item().get());
-    output.accept(BRONZE_TRAPDOOR.item().get());
-    output.accept(TIN_FRAMED_GLASS.item().get());
-    output.accept(CHISELED_TIN.item().get());
-    output.accept(TIN_TILES.item().get());
-    output.accept(CUT_TIN.item().get());
-    output.accept(CUT_TIN_STAIRS.item().get());
-    output.accept(CUT_TIN_SLAB.item().get());
   }
 
   private static BlockEntry<Block, BlockItem> blockWithItem(String name, float destroyTime, float explosionResistance, MapColor mapColor, NoteBlockInstrument instrument, SoundType soundType) {
-    return reg.blockWithItem(name, (key, props) -> new Block(baseBlockProperties(key, destroyTime, explosionResistance, mapColor, instrument, soundType)), BlockItem::new);
-  }
-
-  private static BlockBehaviour.Properties baseBlockProperties(net.minecraft.resources.ResourceKey<Block> key, float destroyTime, float explosionResistance, MapColor mapColor, NoteBlockInstrument instrument, SoundType soundType) {
-    return BlockBehaviour.Properties.of()
+    return reg.blockWithItem(name, (key, props) -> new Block(BlockBehaviour.Properties.of()
         .strength(destroyTime, explosionResistance)
         .mapColor(mapColor)
         .instrument(instrument)
         .sound(soundType)
         .requiresCorrectToolForDrops()
-        .setId(key);
+        .setId(key)), BlockItem::new);
   }
 }
