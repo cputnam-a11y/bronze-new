@@ -8,14 +8,19 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * KhazConfig is a simple multiloader config helper class for Khazoda's mods.
- * Config files are generated and read from {mod_name}.properties files in /config
+ * Config files are generated and read from {mod_id}.properties files in /config
  * It's not recommended to use this class yourself. Its structure may change over time and there may be breaking changes.
  */
 public final class KhazConfig {
+  private final String modName;
   private final String modId;
   private final Path file;
   private final List<Entry<?>> entries;
@@ -23,116 +28,32 @@ public final class KhazConfig {
   private final Map<Entry<?>, Object> serverSyncedValues = new LinkedHashMap<>();
   private boolean loaded;
 
-  private KhazConfig(String modId, List<Entry<?>> entries) {
-    this.modId = Objects.requireNonNull(modId, "modId");
-    this.file = Services.PLATFORM.getConfigDirectory().resolve(modId + ".properties");
+  private KhazConfig(String modName, String modId, List<Entry<?>> entries) {
+    this.modName = KhazConfigHelpers.requireNonBlank(modName, "modName");
+    this.modId = KhazConfigHelpers.requireNonBlank(modId, "modId");
+    this.file = Services.PLATFORM.getConfigDirectory().resolve(this.modId + ".properties");
     this.entries = List.copyOf(entries);
-    validateEntries(modId, this.entries);
+    KhazConfigHelpers.validateEntries(this.modId, this.entries);
   }
 
-  public static KhazConfig of(String modId, Entry<?>... entries) {
-    return new KhazConfig(modId, List.of(entries));
+  public static KhazConfig of(String modName, String modId, Entry<?>... entries) {
+    return new KhazConfig(modName, modId, List.of(entries));
   }
 
   public static Entry<Boolean> bool(String key, boolean defaultValue, String comment) {
-    return new Entry<>(key, defaultValue, comment, new ValueAdapter<>() {
-      @Override
-      public Boolean parse(String raw, Boolean fallback) {
-        if ("true".equalsIgnoreCase(raw)) return true;
-        if ("false".equalsIgnoreCase(raw)) return false;
-        return fallback;
-      }
-
-      @Override
-      public String format(Boolean value) {
-        return Boolean.toString(value);
-      }
-    });
+    return KhazConfigHelpers.createBooleanEntry(key, defaultValue, comment);
   }
 
   public static Entry<Integer> integer(String key, int defaultValue, int min, int max, String comment) {
-    String fullComment = comment + " Range: " + min + "-" + max + ".";
-    return new Entry<>(key, defaultValue, fullComment, new ValueAdapter<>() {
-      @Override
-      public Integer parse(String raw, Integer fallback) {
-        try {
-          return clamp(Integer.parseInt(raw), min, max);
-        } catch (NumberFormatException ignored) {
-          return fallback;
-        }
-      }
-
-      @Override
-      public String format(Integer value) {
-        return Integer.toString(clamp(value, min, max));
-      }
-    });
+    return KhazConfigHelpers.createIntegerEntry(key, defaultValue, min, max, comment);
   }
 
   public static Entry<Double> decimal(String key, double defaultValue, double min, double max, String comment) {
-    String fullComment = comment + " Range: " + min + "-" + max + ".";
-    return new Entry<>(key, defaultValue, fullComment, new ValueAdapter<>() {
-      @Override
-      public Double parse(String raw, Double fallback) {
-        try {
-          return clamp(Double.parseDouble(raw), min, max);
-        } catch (NumberFormatException ignored) {
-          return fallback;
-        }
-      }
-
-      @Override
-      public String format(Double value) {
-        return Double.toString(clamp(value, min, max));
-      }
-    });
+    return KhazConfigHelpers.createDecimalEntry(key, defaultValue, min, max, comment);
   }
 
   public static Entry<String> string(String key, String defaultValue, String comment) {
-    return new Entry<>(key, defaultValue, comment, new ValueAdapter<>() {
-      @Override
-      public String parse(String raw, String fallback) {
-        return raw;
-      }
-
-      @Override
-      public String format(String value) {
-        return value;
-      }
-    });
-  }
-
-  private static List<String> splitCommentLines(String text) {
-    return List.of(text.split("\\R"));
-  }
-
-  private static void validateEntries(String modId, List<Entry<?>> entries) {
-    Set<String> seenKeys = new HashSet<>();
-    for (Entry<?> entry : entries) {
-      if (!seenKeys.add(entry.key())) {
-        throw new IllegalArgumentException("Duplicate config key '" + entry.key() + "' in " + modId);
-      }
-    }
-  }
-
-  private static int clamp(int value, int min, int max) {
-    return Math.max(min, Math.min(max, value));
-  }
-
-  private static double clamp(double value, double min, double max) {
-    return Math.max(min, Math.min(max, value));
-  }
-
-  private static <T> T readValue(Entry<T> entry, String raw) {
-    if (raw == null) {
-      return entry.defaultValue();
-    }
-    return entry.adapter().parse(raw.trim(), entry.defaultValue());
-  }
-
-  private static <T> String formatValue(Entry<T> entry, Object value) {
-    @SuppressWarnings("unchecked") T typedValue = (T) value;
-    return entry.adapter().format(typedValue);
+    return KhazConfigHelpers.createStringEntry(key, defaultValue, comment);
   }
 
   public synchronized void load() {
@@ -150,9 +71,9 @@ public final class KhazConfig {
     boolean changed = !Files.exists(file);
     values.clear();
     for (Entry<?> entry : entries) {
-      Object value = readValue(entry, properties.getProperty(entry.key()));
+      Object value = KhazConfigHelpers.readValue(entry, properties.getProperty(entry.key()));
       values.put(entry, value);
-      String serialized = formatValue(entry, value);
+      String serialized = KhazConfigHelpers.formatValue(entry, value);
       if (!Objects.equals(properties.getProperty(entry.key()), serialized)) {
         changed = true;
       }
@@ -183,7 +104,7 @@ public final class KhazConfig {
     Map<String, String> snapshot = new LinkedHashMap<>();
     for (Entry<?> entry : entries) {
       if (entry.serverSynced()) {
-        snapshot.put(entry.key(), formatValue(entry, values.getOrDefault(entry, entry.defaultValue())));
+        snapshot.put(entry.key(), KhazConfigHelpers.formatValue(entry, values.getOrDefault(entry, entry.defaultValue())));
       }
     }
     return snapshot;
@@ -194,7 +115,7 @@ public final class KhazConfig {
     serverSyncedValues.clear();
     for (Entry<?> entry : entries) {
       if (entry.serverSynced() && serializedValues.containsKey(entry.key())) {
-        serverSyncedValues.put(entry, readValue(entry, serializedValues.get(entry.key())));
+        serverSyncedValues.put(entry, KhazConfigHelpers.readValue(entry, serializedValues.get(entry.key())));
       }
     }
   }
@@ -215,16 +136,19 @@ public final class KhazConfig {
 
   private String render() {
     StringBuilder builder = new StringBuilder();
-    builder.append("# ").append(modId).append(" config").append('\n');
-    builder.append("# Delete any key to restore its default value.").append('\n').append('\n');
+    builder.append("# ").append(KhazConfigHelpers.formatConfigTitle(modName, modId)).append('\n').append('\n');
 
     for (Entry<?> entry : entries) {
       if (!entry.comment().isBlank()) {
-        for (String line : splitCommentLines(entry.comment())) {
+        for (String line : KhazConfigHelpers.splitCommentLines(entry.comment())) {
           builder.append("# ").append(line).append('\n');
         }
       }
-      builder.append(entry.key()).append('=').append(formatValue(entry, values.getOrDefault(entry, entry.defaultValue()))).append('\n').append('\n');
+      builder.append(entry.key())
+          .append('=')
+          .append(KhazConfigHelpers.formatValue(entry, values.getOrDefault(entry, entry.defaultValue())))
+          .append('\n')
+          .append('\n');
     }
     return builder.toString();
   }

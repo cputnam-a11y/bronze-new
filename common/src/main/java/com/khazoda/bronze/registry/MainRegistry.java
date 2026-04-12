@@ -105,7 +105,7 @@ public final class MainRegistry {
   /**
    * ==========[ Tabs ]==========
    */
-  public static final Entry<CreativeModeTab> BRONZE_TAB = reg.tab("main", () -> new ItemStack(BRONZE_BLOCK.item().get()));
+  public static final Entry<CreativeModeTab> BRONZE_TAB = reg.tab("main", () -> new ItemStack(BRONZE_INGOT.get()));
 
   private MainRegistry() {
   }
