@@ -20,6 +20,7 @@ public final class KhazConfig {
   private final Path file;
   private final List<Entry<?>> entries;
   private final Map<Entry<?>, Object> values = new LinkedHashMap<>();
+  private final Map<Entry<?>, Object> serverSyncedValues = new LinkedHashMap<>();
   private boolean loaded;
 
   private KhazConfig(String modId, List<Entry<?>> entries) {
@@ -172,8 +173,35 @@ public final class KhazConfig {
 
   public synchronized <T> T get(Entry<T> entry) {
     load();
-    @SuppressWarnings("unchecked") T value = (T) values.getOrDefault(entry, entry.defaultValue());
+    @SuppressWarnings("unchecked") T value = (T) serverSyncedValues.getOrDefault(entry, values.getOrDefault(entry, entry.defaultValue()));
     return value;
+  }
+
+  public synchronized Map<String, String> createServerSyncSnapshot() {
+    load();
+
+    Map<String, String> snapshot = new LinkedHashMap<>();
+    for (Entry<?> entry : entries) {
+      if (entry.serverSynced()) {
+        snapshot.put(entry.key(), formatValue(entry, values.getOrDefault(entry, entry.defaultValue())));
+      }
+    }
+    return snapshot;
+  }
+
+  public synchronized void applyServerSyncedValues(Map<String, String> serializedValues) {
+    load();
+    serverSyncedValues.clear();
+    for (Entry<?> entry : entries) {
+      if (entry.serverSynced() && serializedValues.containsKey(entry.key())) {
+        serverSyncedValues.put(entry, readValue(entry, serializedValues.get(entry.key())));
+      }
+    }
+  }
+
+  public synchronized void clearServerSyncedValuesAndReload() {
+    serverSyncedValues.clear();
+    reload();
   }
 
   private synchronized void write() {
@@ -207,12 +235,21 @@ public final class KhazConfig {
     String format(T value);
   }
 
-  public record Entry<T>(String key, T defaultValue, String comment, ValueAdapter<T> adapter) {
+  public record Entry<T>(String key, T defaultValue, String comment, ValueAdapter<T> adapter, boolean serverSynced) {
+    public Entry(String key, T defaultValue, String comment, ValueAdapter<T> adapter) {
+      this(key, defaultValue, comment, adapter, true);
+    }
+
     public Entry {
       Objects.requireNonNull(key, "key");
       Objects.requireNonNull(defaultValue, "defaultValue");
       Objects.requireNonNull(comment, "comment");
       Objects.requireNonNull(adapter, "adapter");
+    }
+
+    // Attach this to any config values that are client only. They won't be overridden by a server on connection.
+    public Entry<T> localOnly() {
+      return new Entry<>(key, defaultValue, comment, adapter, false);
     }
   }
 }

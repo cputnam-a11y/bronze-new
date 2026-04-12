@@ -1,5 +1,6 @@
 package com.khazoda.bronze.platform;
 
+import com.khazoda.bronze.config.KhazConfig;
 import com.khazoda.bronze.platform.services.IPlatformHelper;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
@@ -30,5 +31,10 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public Path getConfigDirectory() {
         return FMLPaths.CONFIGDIR.get();
+    }
+
+    @Override
+    public void registerServerConfigSync(KhazConfig config) {
+        NeoForgeConfigSync.registerServerConfigSync(config);
     }
 }

@@ -1,5 +1,7 @@
 package com.khazoda.bronze.platform.services;
 
+import com.khazoda.bronze.config.KhazConfig;
+
 import java.nio.file.Path;
 
 public interface IPlatformHelper {
@@ -32,6 +34,8 @@ public interface IPlatformHelper {
      * @return The config directory path.
      */
     Path getConfigDirectory();
+
+    void registerServerConfigSync(KhazConfig config);
 
     /**
      * Gets the name of the environment type as a string.

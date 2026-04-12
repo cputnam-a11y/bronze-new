@@ -13,6 +13,7 @@ public final class BronzeCommon {
 
   public static void init() {
     CONFIG.load();
+    Services.PLATFORM.registerServerConfigSync(CONFIG);
     if (Services.PLATFORM.isModLoaded(Constants.MOD_ID)) Constants.LOG.info("- Bronze Loaded -");
   }
 }
