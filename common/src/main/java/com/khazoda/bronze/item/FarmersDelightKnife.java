@@ -71,7 +71,6 @@ public class FarmersDelightKnife extends Item {
     BlockState state = level.getBlockState(pos);
     Direction facing = context.getClickedFace();
 
-    System.out.println(toolStack.is(KNIVES));
     if (state.getBlock() == Blocks.PUMPKIN && toolStack.is(KNIVES)) {
       Player player = context.getPlayer();
       if (player != null && !level.isClientSide()) {

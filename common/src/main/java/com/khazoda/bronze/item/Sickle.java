@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,19 +42,22 @@ import static com.khazoda.bronze.Constants.LOG;
 
 /**
  *
- * <b>A sickle has two main functions, mowing and harvesting</b>
- * <br>Mowing: removing grass, leaf litter, ferns (or anything else defined in the {@link #SICKLE_MOW_BLOCKS} block tag) in an area
- * <br>Harvesting: breaking and replanting crops, with a low chance of extra loot drops
+ * <b>A sickle has two main functions, mowing/plucking and harvesting.</b>
+ * <br>Mowing: left-clicking removes grass, leaf litter, ferns, or anything else defined in {@link #SICKLE_MOW_BLOCKS}.
+ * <br>Plucking: right-clicking removes flowers or anything else defined in {@link #SICKLE_PLUCK_BLOCKS}.
+ * <br>Harvesting: right-clicking mature crops breaks and replants them, with a low chance of extra loot drops.
  * <br>
  * <br><b>Definitions</b>
- * <br> <i>Grasslike</i>: a block that is defined in {@link #SICKLE_MOW_BLOCKS}
- * <br> <i>SHR</i>: stands for sickle_harvest_range, an integer defined in config which denotes how large the mowing/harvesting area is
+ * <br> <i>Grasslike</i>: a block that is defined in {@link #SICKLE_MOW_BLOCKS}.
+ * <br> <i>Pluckable</i>: a block that is defined in {@link #SICKLE_PLUCK_BLOCKS}.
+ * <br> <i>sickle_mow_range</i>: the configured area size for mowing and plucking.
+ * <br> <i>sickle_harvest_range</i>: the configured area size for harvesting crops.
  * <br>
  * <br><b>Left and Right click do different things based on what is being interacted with</b>
- * <br>Left Click Crops: cancel interaction, crop remains intact ({@link #canDestroyBlock})
- * <br>Left Click Grasslikes: break all grasslikes in SHR ({@link #aoeMow})
- * <br>Right Click Crops: break and replant all crop blocks in SHR ({@link #aoeHarvest})
- * <br>Right Click Grasslikes/Flowers: break all flowers in SHR, leave grasslikes intact
+ * <br>Left Click Crops: cancel interaction, crop remains intact ({@link #canDestroyBlock}).
+ * <br>Left Click Grasslikes: break mowable blocks in sickle_mow_range ({@link #aoeMow}).
+ * <br>Right Click Crops: break and replant harvestable crops in sickle_harvest_range ({@link #aoeHarvest}).
+ * <br>Right Click Pluckables: break pluckable blocks in sickle_mow_range, leave mowable grasslikes intact.
  */
 public class Sickle extends Item {
   public static final TagKey<Block> SICKLE_MOW_BLOCKS = TagKey.create(Registries.BLOCK, ID("sickle_mow"));
@@ -70,7 +74,7 @@ public class Sickle extends Item {
   @Override
   public boolean canDestroyBlock(ItemStack stack, BlockState state, Level level, BlockPos pos, LivingEntity entity) {
     /* Prevent crop blocks from being destroyed */
-    return super.canDestroyBlock(stack, state, level, pos, entity) && !(state.getBlock() instanceof CropBlock) && !(state.getBlock() instanceof NetherWartBlock);
+    return super.canDestroyBlock(stack, state, level, pos, entity) && !isHarvestableCrop(state);
   }
 
   @Override
@@ -80,7 +84,7 @@ public class Sickle extends Item {
 
     if (state.is(SICKLE_MOW_BLOCKS)) {
       // Sickle Mowing
-      aoeMow(level, miningEntity, state, state, pos, SICKLE_MOW_BLOCKS, 0);
+      aoeMow(level, miningEntity, state, pos, SICKLE_MOW_BLOCKS);
       stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
     } else if (!level.isClientSide() && !state.is(BlockTags.FIRE) && state.getDestroySpeed(level, pos) != 0.0f && tool.damagePerBlock() > 0) {
       // Normal Tool Damage
@@ -100,20 +104,19 @@ public class Sickle extends Item {
     BlockPos pos = context.getClickedPos();
     BlockState state = level.getBlockState(pos);
 
-    if ((state.getBlock() instanceof CropBlock || state.getBlock() instanceof NetherWartBlock) && isMature(state)) {
+    if (isMature(state)) {
       BlockPos basePos = findCropBase(level, pos);
       BlockState baseState = level.getBlockState(basePos);
 
       playSweepFeedback(serverLevel, player, context.getHand(), basePos, baseState, 1.0F, 1.0F);
       stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
-      Set<BlockPos> visited = new HashSet<>();
-      aoeHarvest(level, player, basePos, 0, visited);
+      aoeHarvest(level, player, basePos);
       return InteractionResult.SUCCESS;
     } else if ((state.is(SICKLE_PLUCK_BLOCKS))) {
       playSweepFeedback(serverLevel, player, context.getHand(), pos, state, 0.8F, 1.0F);
       level.playSound(null, pos, SoundEvents.BUBBLE_POP, SoundSource.BLOCKS, 1.0F, 1.0F);
       stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
-      aoeMow(level, player, state, state, pos, SICKLE_PLUCK_BLOCKS, 0, new HashSet<>());
+      aoeMow(level, player, state, pos, SICKLE_PLUCK_BLOCKS);
       return InteractionResult.SUCCESS;
     }
     return InteractionResult.PASS;
@@ -124,89 +127,114 @@ public class Sickle extends Item {
     stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
   }
 
-  private static void aoeMow(Level level, LivingEntity entity, BlockState initialBlockState, BlockState currentBlockState, BlockPos pos, TagKey<Block> blocksToMow, int iteration) {
-    aoeMow(level, entity, initialBlockState, currentBlockState, pos, blocksToMow, iteration, new HashSet<>());
-  }
-
-  private static void aoeMow(Level level, LivingEntity entity, BlockState initialBlockState, BlockState currentBlockState, BlockPos pos, TagKey<Block> blocksToMow, int iteration, Set<BlockPos> visited) {
+  private static void aoeMow(Level level, LivingEntity entity, BlockState initialBlockState, BlockPos pos, TagKey<Block> mowableBlocks) {
     if (level.isClientSide()) return;
-    if (!visited.add(pos)) return;
-    /* Cut Grass */
-    if (initialBlockState.is(blocksToMow)) {
-      Block currentBlock = currentBlockState.getBlock();
-      if (currentBlockState.is(blocksToMow)) {
-        if (entity instanceof Player player) {
-          if (level.getBlockState(pos).getBlock() == currentBlock) {
-            currentBlock.playerDestroy(level, player, pos, currentBlockState, null, player.getMainHandItem());
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+    if (!initialBlockState.is(mowableBlocks)) return;
 
-            // Add block breaking particles
-            ((ServerLevel) level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, currentBlockState), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 5, 0.2, 0.2, 0.2, 0.1);
-          }
-        } else {
-          Block.dropResources(currentBlockState, level, pos, null, entity, ItemStack.EMPTY);
-          level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-        }
+    int sickleMowRange = BronzeCommon.CONFIG.get(BronzeCommon.SICKLE_MOW_RANGE);
+    Set<BlockPos> visitedPositions = new HashSet<>();
+    ArrayDeque<SearchNode> unvisitedPositions = new ArrayDeque<>();
+    unvisitedPositions.add(new SearchNode(pos, 0));
+
+    while (!unvisitedPositions.isEmpty()) {
+      SearchNode node = unvisitedPositions.removeFirst();
+      if (!visitedPositions.add(node.position())) continue;
+
+      BlockState currentBlockState = level.getBlockState(node.position());
+      if (currentBlockState.is(mowableBlocks)) {
+        mowBlock(level, entity, currentBlockState, node.position());
       }
 
-      int sickleMowRange = BronzeCommon.CONFIG.get(BronzeCommon.SICKLE_MOW_RANGE);
-      if (iteration < sickleMowRange - 1) {
-        aoeMow(level, entity, initialBlockState, level.getBlockState(pos.east()), pos.east(), blocksToMow, iteration + 1, visited);
-        aoeMow(level, entity, initialBlockState, level.getBlockState(pos.north()), pos.north(), blocksToMow, iteration + 1, visited);
-        aoeMow(level, entity, initialBlockState, level.getBlockState(pos.west()), pos.west(), blocksToMow, iteration + 1, visited);
-        aoeMow(level, entity, initialBlockState, level.getBlockState(pos.south()), pos.south(), blocksToMow, iteration + 1, visited);
+      if (node.distanceFromOrigin() < sickleMowRange - 1) {
+        addCardinalNeighbors(unvisitedPositions, node);
       }
     }
   }
 
-  private static void aoeHarvest(Level level, LivingEntity entity, BlockPos pos, int iteration, Set<BlockPos> visited) {
+  private static void mowBlock(Level level, LivingEntity entity, BlockState currentBlockState, BlockPos pos) {
+    Block currentBlock = currentBlockState.getBlock();
+    if (entity instanceof Player player) {
+      if (level.getBlockState(pos).getBlock() == currentBlock) {
+        currentBlock.playerDestroy(level, player, pos, currentBlockState, null, player.getMainHandItem());
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+
+        // Add block breaking particles
+        ((ServerLevel) level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, currentBlockState), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 5, 0.2, 0.2, 0.2, 0.1);
+      }
+    } else {
+      Block.dropResources(currentBlockState, level, pos, null, entity, ItemStack.EMPTY);
+      level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+    }
+  }
+
+  private static void aoeHarvest(Level level, LivingEntity entity, BlockPos pos) {
     if (level.isClientSide()) return;
-    BlockState blockState = level.getBlockState(pos);
-    /* Harvest Crops */
-    if ((blockState.getBlock() instanceof CropBlock || blockState.getBlock() instanceof NetherWartBlock)) {
-      BlockPos basePos = findCropBase(level, pos);
-      if (!visited.add(basePos)) return;
 
-      BlockState baseState = level.getBlockState(basePos);
+    int sickleHarvestRange = BronzeCommon.CONFIG.get(BronzeCommon.SICKLE_HARVEST_RANGE);
+    Set<BlockPos> visitedCropBases = new HashSet<>();
+    ArrayDeque<SearchNode> unvisitedPositions = new ArrayDeque<>();
+    unvisitedPositions.add(new SearchNode(pos, 0));
 
-      /* Ascertain the age IntegerProperty of the block */
-      IntegerProperty ageProperty = null;
-      boolean isMature = switch (baseState.getBlock()) {
-        case CropBlock cropBlock -> {
-          ageProperty = baseState.getProperties().stream()
-              .filter(IntegerProperty.class::isInstance)
-              .filter(property -> property.getName().equals("age"))
-              .map(IntegerProperty.class::cast)
-              .findFirst()
-              .orElse(null);
-          if (ageProperty == null) yield false;
+    while (!unvisitedPositions.isEmpty()) {
+      SearchNode node = unvisitedPositions.removeFirst();
+      BlockState currentBlockState = level.getBlockState(node.position());
+      if (!isHarvestableCrop(currentBlockState)) continue;
 
-          int currentAge = baseState.getValue(ageProperty);
-          yield currentAge >= cropBlock.getMaxAge();
-        }
-        case NetherWartBlock netherWart -> {
-          int currentAge = baseState.getValue(NetherWartBlock.AGE);
-          ageProperty = NetherWartBlock.AGE;
-          yield currentAge >= 3;
-        }
-        default -> false;
-      };
-      if (!isMature) return;
+      BlockPos basePos = findCropBase(level, node.position());
+      if (!visitedCropBases.add(basePos)) continue;
 
-      /* Break the entire crop column from top to bottom, then replant at base */
+      ReplantTarget replantTarget = findReplantTargetIfMature(level, basePos);
+      if (replantTarget == null) continue;
+
       harvestCropColumn(level, entity, basePos);
       tryExtraHappyLootChance(level, basePos);
+      replantCrop(level, replantTarget.baseCropState(), basePos, replantTarget.cropAgeProperty());
 
-      /* Replant at base position */
-      replantCrop(level, baseState, basePos, ageProperty);
-      int sickleHarvestRange = BronzeCommon.CONFIG.get(BronzeCommon.SICKLE_HARVEST_RANGE);
-      if (iteration < sickleHarvestRange - 1) {
-        aoeHarvest(level, entity, pos.east(), iteration + 1, visited);
-        aoeHarvest(level, entity, pos.north(), iteration + 1, visited);
-        aoeHarvest(level, entity, pos.west(), iteration + 1, visited);
-        aoeHarvest(level, entity, pos.south(), iteration + 1, visited);
+      if (node.distanceFromOrigin() < sickleHarvestRange - 1) {
+        addCardinalNeighbors(unvisitedPositions, node);
       }
     }
+  }
+
+  private static void addCardinalNeighbors(ArrayDeque<SearchNode> unvisitedPositions, SearchNode searchNode) {
+    int nextDistanceFromOrigin = searchNode.distanceFromOrigin() + 1;
+    unvisitedPositions.add(new SearchNode(searchNode.position().east(), nextDistanceFromOrigin));
+    unvisitedPositions.add(new SearchNode(searchNode.position().north(), nextDistanceFromOrigin));
+    unvisitedPositions.add(new SearchNode(searchNode.position().west(), nextDistanceFromOrigin));
+    unvisitedPositions.add(new SearchNode(searchNode.position().south(), nextDistanceFromOrigin));
+  }
+
+  private static ReplantTarget findReplantTargetIfMature(Level level, BlockPos basePos) {
+    BlockState baseCropState = level.getBlockState(basePos);
+    IntegerProperty ageProperty = null;
+    boolean isMature = switch (baseCropState.getBlock()) {
+      case CropBlock cropBlock -> {
+        ageProperty = baseCropState.getProperties().stream()
+            .filter(IntegerProperty.class::isInstance)
+            .filter(property -> property.getName().equals("age"))
+            .map(IntegerProperty.class::cast)
+            .findFirst()
+            .orElse(null);
+        if (ageProperty == null) yield false;
+
+        int currentAge = baseCropState.getValue(ageProperty);
+        yield currentAge >= cropBlock.getMaxAge();
+      }
+      case NetherWartBlock ignored -> {
+        int currentAge = baseCropState.getValue(NetherWartBlock.AGE);
+        ageProperty = NetherWartBlock.AGE;
+        yield currentAge >= 3;
+      }
+      default -> false;
+    };
+
+    return isMature ? new ReplantTarget(baseCropState, ageProperty) : null;
+  }
+
+  private record SearchNode(BlockPos position, int distanceFromOrigin) {
+  }
+
+  private record ReplantTarget(BlockState baseCropState, IntegerProperty cropAgeProperty) {
   }
 
   private static void playSweepFeedback(ServerLevel level, Player player, InteractionHand hand, BlockPos pos, BlockState state, float volume, float pitch) {
@@ -260,6 +288,10 @@ public class Sickle extends Item {
       return state.getValue(NetherWartBlock.AGE) >= NetherWartBlock.MAX_AGE;
     }
     return false;
+  }
+
+  private static boolean isHarvestableCrop(BlockState state) {
+    return state.getBlock() instanceof CropBlock || state.getBlock() instanceof NetherWartBlock;
   }
 
   private static BlockPos findCropBase(Level level, BlockPos pos) {
