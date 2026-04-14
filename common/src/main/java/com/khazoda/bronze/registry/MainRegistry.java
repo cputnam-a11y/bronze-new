@@ -63,7 +63,7 @@ public final class MainRegistry {
   public static final Entry<Item> BRONZE_PICKAXE = reg.pickaxe("bronze_pickaxe", BronzeMaterial.TOOL, 1.0F, -2.8F).addToTab(TAB);
   public static final Entry<ShovelItem> BRONZE_SHOVEL = reg.shovel("bronze_shovel", BronzeMaterial.TOOL, 1.5F, -3.0F).addToTab(TAB);
   public static final Entry<HoeItem> BRONZE_HOE = reg.hoe("bronze_hoe", BronzeMaterial.TOOL, -2.0F, 0.0F).addToTab(TAB);
-  public static final Entry<Sickle> SICKLE = reg.item("bronze_sickle", (key, props) -> new Sickle(props.durability(238).component(DataComponents.TOOL, Sickle.createToolProperties()))).addToTab(TAB);
+  public static final Entry<Sickle> SICKLE = reg.item("bronze_sickle", Sickle::create).addToTab(TAB);
   public static final Entry<Item> BRONZE_HELMET = reg.humanoidArmor("bronze_helmet", BronzeMaterial.ARMOR, ArmorType.HELMET).addToTab(TAB);
   public static final Entry<Item> BRONZE_CHESTPLATE = reg.humanoidArmor("bronze_chestplate", BronzeMaterial.ARMOR, ArmorType.CHESTPLATE).addToTab(TAB);
   public static final Entry<Item> BRONZE_LEGGINGS = reg.humanoidArmor("bronze_leggings", BronzeMaterial.ARMOR, ArmorType.LEGGINGS).addToTab(TAB);

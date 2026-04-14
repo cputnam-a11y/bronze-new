@@ -63,6 +63,16 @@ public class Sickle extends Item {
   public static final TagKey<Block> SICKLE_MOW_BLOCKS = TagKey.create(Registries.BLOCK, ID("sickle_mow"));
   public static final TagKey<Block> SICKLE_PLUCK_BLOCKS = TagKey.create(Registries.BLOCK, ID("sickle_pluck"));
 
+  public static Properties defaultProperties(Properties properties) {
+    return properties
+        .durability(238)
+        .component(DataComponents.TOOL, createToolProperties());
+  }
+
+  public static Sickle create(Properties properties) {
+    return new Sickle(defaultProperties(properties));
+  }
+
   public Sickle(Properties properties) {
     super(properties);
   }
@@ -209,12 +219,7 @@ public class Sickle extends Item {
     IntegerProperty ageProperty = null;
     boolean isMature = switch (baseCropState.getBlock()) {
       case CropBlock cropBlock -> {
-        ageProperty = baseCropState.getProperties().stream()
-            .filter(IntegerProperty.class::isInstance)
-            .filter(property -> property.getName().equals("age"))
-            .map(IntegerProperty.class::cast)
-            .findFirst()
-            .orElse(null);
+        ageProperty = baseCropState.getProperties().stream().filter(IntegerProperty.class::isInstance).filter(property -> property.getName().equals("age")).map(IntegerProperty.class::cast).findFirst().orElse(null);
         if (ageProperty == null) yield false;
 
         int currentAge = baseCropState.getValue(ageProperty);
