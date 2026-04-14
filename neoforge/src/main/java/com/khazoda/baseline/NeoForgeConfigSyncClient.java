@@ -1,6 +1,5 @@
-package com.khazoda.bronze.platform;
+package com.khazoda.baseline;
 
-import com.khazoda.bronze.config.KhazConfig;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
 

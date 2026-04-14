@@ -1,7 +1,5 @@
-package com.khazoda.bronze.platform;
+package com.khazoda.baseline;
 
-import com.khazoda.bronze.config.KhazConfig;
-import com.khazoda.bronze.config.ServerConfigSyncPayload;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -14,26 +12,26 @@ public final class FabricConfigSync {
   private FabricConfigSync() {
   }
 
-  public static void registerServerConfigSync(KhazConfig config) {
+  public static void registerServerConfigSync(KhazConfig config, KhazConfigSync sync) {
     serverSyncedConfig = config;
-    registerClientboundPayloadType();
-    registerServerJoinSyncListener();
+    registerClientboundPayloadType(sync);
+    registerServerJoinSyncListener(sync);
   }
 
-  private static void registerServerJoinSyncListener() {
+  private static void registerServerJoinSyncListener(KhazConfigSync sync) {
     if (!serverGameListenersRegistered) {
       serverGameListenersRegistered = true;
       ServerPlayConnectionEvents.JOIN.register((listener, sender, server) -> {
-        if (serverSyncedConfig != null && ServerPlayNetworking.canSend(listener, ServerConfigSyncPayload.TYPE)) {
-          sender.sendPacket(new ServerConfigSyncPayload(serverSyncedConfig.createServerSyncSnapshot()));
+        if (serverSyncedConfig != null && ServerPlayNetworking.canSend(listener, sync.type())) {
+          sender.sendPacket(sync.payload(serverSyncedConfig.createServerSyncSnapshot()));
         }
       });
     }
   }
 
-  public static void registerClientboundPayloadType() {
+  public static void registerClientboundPayloadType(KhazConfigSync sync) {
     if (clientboundPayloadTypeRegistered) return;
-    PayloadTypeRegistry.clientboundPlay().register(ServerConfigSyncPayload.TYPE, ServerConfigSyncPayload.CODEC);
+    PayloadTypeRegistry.clientboundPlay().register(sync.type(), sync.codec());
     clientboundPayloadTypeRegistered = true;
   }
 }

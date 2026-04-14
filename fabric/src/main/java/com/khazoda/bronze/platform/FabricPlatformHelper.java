@@ -1,7 +1,9 @@
 package com.khazoda.bronze.platform;
 
-import com.khazoda.bronze.config.KhazConfig;
+import com.khazoda.bronze.Constants;
 import com.khazoda.bronze.platform.services.IPlatformHelper;
+import com.khazoda.baseline.FabricConfigSync;
+import com.khazoda.baseline.KhazConfig;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Path;
@@ -31,6 +33,6 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
     public void registerServerConfigSync(KhazConfig config) {
-        FabricConfigSync.registerServerConfigSync(config);
+        FabricConfigSync.registerServerConfigSync(config, Constants.CONFIG_SYNC);
     }
 }

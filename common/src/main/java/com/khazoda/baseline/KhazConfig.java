@@ -1,7 +1,7 @@
-package com.khazoda.bronze.config;
+package com.khazoda.baseline;
 
-import com.khazoda.bronze.Constants;
-import com.khazoda.bronze.platform.Services;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -20,6 +20,8 @@ import java.util.Properties;
  * It's not recommended to use this class yourself. Its structure may change over time and there may be breaking changes.
  */
 public final class KhazConfig {
+  private static final Logger LOG = LoggerFactory.getLogger(KhazConfig.class);
+
   private final String modName;
   private final String modId;
   private final Path file;
@@ -28,16 +30,16 @@ public final class KhazConfig {
   private final Map<Entry<?>, Object> serverSyncedValues = new LinkedHashMap<>();
   private boolean loaded;
 
-  private KhazConfig(String modName, String modId, List<Entry<?>> entries) {
+  private KhazConfig(String modName, String modId, Path configDirectory, List<Entry<?>> entries) {
     this.modName = KhazConfigHelpers.requireNonBlank(modName, "modName");
     this.modId = KhazConfigHelpers.requireNonBlank(modId, "modId");
-    this.file = Services.PLATFORM.getConfigDirectory().resolve(this.modId + ".properties");
+    this.file = Objects.requireNonNull(configDirectory, "configDirectory").resolve(this.modId + ".properties");
     this.entries = List.copyOf(entries);
     KhazConfigHelpers.validateEntries(this.modId, this.entries);
   }
 
-  public static KhazConfig of(String modName, String modId, Entry<?>... entries) {
-    return new KhazConfig(modName, modId, List.of(entries));
+  public static KhazConfig of(String modName, String modId, Path configDirectory, Entry<?>... entries) {
+    return new KhazConfig(modName, modId, configDirectory, List.of(entries));
   }
 
   public static Entry<Boolean> bool(String key, boolean defaultValue, String comment) {
@@ -64,7 +66,7 @@ public final class KhazConfig {
       try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
         properties.load(reader);
       } catch (IOException e) {
-        Constants.LOG.warn("Failed to read config file {}: {}", file, e.getMessage());
+        LOG.warn("Failed to read config file {}: {}", file, e.getMessage());
       }
     }
 
@@ -86,7 +88,7 @@ public final class KhazConfig {
   }
 
 
-  // Re-loads the config file into memory. Call this for config values that don't logically need a game restart
+  // Re-loads the config file into memory.
   public synchronized void reload() {
     loaded = false;
     load();
@@ -130,7 +132,7 @@ public final class KhazConfig {
       Files.createDirectories(file.getParent());
       Files.writeString(file, render(), StandardCharsets.UTF_8);
     } catch (IOException e) {
-      Constants.LOG.warn("Failed to write config file {}: {}", file, e.getMessage());
+      LOG.warn("Failed to write config file {}: {}", file, e.getMessage());
     }
   }
 

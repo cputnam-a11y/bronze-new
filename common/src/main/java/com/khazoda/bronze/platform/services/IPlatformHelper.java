@@ -1,6 +1,6 @@
 package com.khazoda.bronze.platform.services;
 
-import com.khazoda.bronze.config.KhazConfig;
+import com.khazoda.baseline.KhazConfig;
 
 import java.nio.file.Path;
 

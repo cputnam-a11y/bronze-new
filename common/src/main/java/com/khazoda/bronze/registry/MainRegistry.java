@@ -7,9 +7,9 @@ import com.khazoda.bronze.item.Sickle;
 import com.khazoda.bronze.material.BronzeMaterial;
 import com.khazoda.bronze.material.TinMaterial;
 import com.khazoda.bronze.platform.Services;
-import com.khazoda.bronze.registry.helper.KhazReg;
-import com.khazoda.bronze.registry.helper.KhazReg.BlockEntry;
-import com.khazoda.bronze.registry.helper.KhazReg.Entry;
+import com.khazoda.baseline.KhazReg;
+import com.khazoda.baseline.KhazReg.BlockEntry;
+import com.khazoda.baseline.KhazReg.Entry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -110,10 +110,11 @@ public final class MainRegistry {
   private MainRegistry() {
   }
 
-  public static void init() {
-    if (initialized) return;
+  public static KhazReg init() {
+    if (initialized) return reg;
     initialized = true;
     reg.freeze();
+    return reg;
   }
 
   public static void addMainTabItems(Consumer<ItemLike> output) {

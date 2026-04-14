@@ -1,5 +1,6 @@
 package com.khazoda.bronze;
 
+import com.khazoda.baseline.KhazConfigSync;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -12,6 +13,7 @@ public class Constants {
   public static final String MOD_ID = "bronze";
   public static final String MOD_NAME = "Bronze";
   public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
+  public static final KhazConfigSync CONFIG_SYNC = KhazConfigSync.create(ID("config_sync"));
 
   public static Identifier ID(String path) {
     return Identifier.fromNamespaceAndPath(MOD_ID, path);

@@ -1,8 +1,8 @@
 package com.khazoda.bronze;
 
 import com.khazoda.bronze.registry.MainRegistry;
-import com.khazoda.bronze.registry.helper.KhazRegNeoForge;
-import com.khazoda.bronze.platform.NeoForgeConfigSync;
+import com.khazoda.baseline.KhazRegNeoForge;
+import com.khazoda.baseline.NeoForgeConfigSync;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -11,8 +11,8 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 public class BronzeNeoForge {
   public BronzeNeoForge(IEventBus eventBus) {
     BronzeCommon.init();
-    NeoForgeConfigSync.registerPayloadHandlers(eventBus);
-    KhazRegNeoForge.init(eventBus);
+    NeoForgeConfigSync.registerPayloadHandlers(eventBus, Constants.CONFIG_SYNC);
+    KhazRegNeoForge.init(eventBus, MainRegistry::init);
     eventBus.addListener(this::onBuildCreativeModeTabContents);
   }
 

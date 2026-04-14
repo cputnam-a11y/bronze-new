@@ -1,7 +1,5 @@
-package com.khazoda.bronze.platform;
+package com.khazoda.baseline;
 
-import com.khazoda.bronze.config.KhazConfig;
-import com.khazoda.bronze.config.ServerConfigSyncPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLLoader;
@@ -12,14 +10,16 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 public final class NeoForgeConfigSync {
   private static KhazConfig serverSyncedConfig;
+  private static KhazConfigSync sync;
   private static boolean serverGameListenersRegistered;
   private static boolean clientGameListenersRegistered;
 
   private NeoForgeConfigSync() {
   }
 
-  public static void registerServerConfigSync(KhazConfig config) {
+  public static void registerServerConfigSync(KhazConfig config, KhazConfigSync sync) {
     serverSyncedConfig = config;
+    NeoForgeConfigSync.sync = sync;
     registerServerLoginSyncListener();
     registerClientDisconnectReloadListener(config);
   }
@@ -38,12 +38,12 @@ public final class NeoForgeConfigSync {
     }
   }
 
-  public static void registerPayloadHandlers(IEventBus modEventBus) {
-    modEventBus.addListener(NeoForgeConfigSync::onRegisterPayloadHandlers);
+  public static void registerPayloadHandlers(IEventBus modEventBus, KhazConfigSync sync) {
+    modEventBus.addListener((RegisterPayloadHandlersEvent event) -> onRegisterPayloadHandlers(event, sync));
   }
 
-  private static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
-    event.registrar("1").playToClient(ServerConfigSyncPayload.TYPE, ServerConfigSyncPayload.CODEC, (payload, context) -> {
+  private static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event, KhazConfigSync sync) {
+    event.registrar("1").playToClient(sync.type(), sync.codec(), (payload, context) -> {
       if (serverSyncedConfig != null) {
         serverSyncedConfig.applyServerSyncedValues(payload.serverValues());
       }
@@ -51,8 +51,8 @@ public final class NeoForgeConfigSync {
   }
 
   private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-    if (serverSyncedConfig != null && event.getEntity() instanceof ServerPlayer player) {
-      PacketDistributor.sendToPlayer(player, new ServerConfigSyncPayload(serverSyncedConfig.createServerSyncSnapshot()));
+    if (serverSyncedConfig != null && sync != null && event.getEntity() instanceof ServerPlayer player) {
+      PacketDistributor.sendToPlayer(player, sync.payload(serverSyncedConfig.createServerSyncSnapshot()));
     }
   }
 }
