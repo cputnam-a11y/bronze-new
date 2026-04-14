@@ -76,6 +76,12 @@ public final class KhazReg {
     return register(Registries.ITEM, name, () -> new Item(new Item.Properties().setId(key)));
   }
 
+  /* Example: reg.item("sickle", Sickle::new) */
+  public <T extends Item> Entry<T> item(String name, Function<Item.Properties, T> factory) {
+    ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, ID(name));
+    return register(Registries.ITEM, name, () -> factory.apply(new Item.Properties().setId(key)));
+  }
+
   /* Example: reg.item("heavy_tin_ingot", (key, props) -> new Item(props.stacksTo(16))) */
   public <T extends Item> Entry<T> item(String name, ItemFactory<T> factory) {
     ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, ID(name));
