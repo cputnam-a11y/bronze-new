@@ -4,23 +4,12 @@
   "processing_time": 400,
   "results": [
     {
-      "count": 18,
+      "count": 27,
       "id": "minecraft:raw_copper"
     },
     {
       "count": 9,
-      "chance": 0.75,
-      "id": "minecraft:raw_copper"
-    },
-    {
-      "count": 9,
-      "chance": 0.9,
       "id": "bronze:raw_tin"
-    },
-    {
-      "chance": 0.75,
-      "count": 45,
-      "id": "create:experience_nugget"
     }
   ],
   "fabric:load_conditions": [
