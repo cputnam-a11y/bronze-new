@@ -1,0 +1,5 @@
+{
+  "from": "minecraft:rooted_dirt",
+  "to": "minecraft:dirt",
+  "loot": "bronze:trowel/loosen_rooted_dirt"
+}

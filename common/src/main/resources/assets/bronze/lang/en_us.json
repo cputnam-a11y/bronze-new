@@ -69,5 +69,13 @@
   "item.bronze.tin_shovel": "Tin Shovel",
   "item.bronze.tin_hoe": "Tin Hoe",
   "item.bronze.tin_horse_armor": "Tin Horse Armor",
-  "item.bronze.tin_knife": "Tin Knife"
+  "item.bronze.tin_knife": "Tin Knife",
+  "item.bronze.trowel": "Trowel",
+  "item.bronze.tin_nautilus_armor": "Tin Nautilus Armor",
+  "item.bronze.bronze_nautilus_armor": "Bronze Nautilus Armor",
+  "item.bronze.tin_spear": "Tin Spear",
+  "item.bronze.bronze_spear": "Bronze Spear",
+  "advancement.bronze.got_trowel.title": "CHANGE THIS",
+  "advancement.bronze.got_trowel.description": "CHANGE THIS",
+  "item.bronze.bronze_coin": "Bronze Coin"
 }

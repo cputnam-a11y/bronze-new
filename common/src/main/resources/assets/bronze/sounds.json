@@ -1,0 +1,8 @@
+{
+  "trowel_dig": {
+    "sounds": [
+      "bronze:trowel_dig"
+    ],
+    "subtitle": "subtitles.bronze.item.trowel.dig"
+  }
+}

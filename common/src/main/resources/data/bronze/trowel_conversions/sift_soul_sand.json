@@ -1,0 +1,8 @@
+{
+  "from": [
+    "minecraft:soul_sand",
+    "minecraft:soul_soil"
+  ],
+  "to": "minecraft:air",
+  "loot": "bronze:trowel/sift_soul_sand"
+}

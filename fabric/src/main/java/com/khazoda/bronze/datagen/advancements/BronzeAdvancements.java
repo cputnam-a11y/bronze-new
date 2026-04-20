@@ -90,6 +90,7 @@ public final class BronzeAdvancements {
             .addRecipe(recipeKey("smelting/bronze_nugget_from_smelting"))
             .addRecipe(recipeKey("smelting/bronze_nugget_from_blasting"))
             .addRecipe(recipeKey("crafting/bronze_sickle"))
+            .addRecipe(recipeKey("crafting/trowel"))
             .addRecipe(recipeKey("crafting/bronze_door"))
             .addRecipe(recipeKey("crafting/bronze_trapdoor"))
             .addRecipe(recipeKey("crafting/bronze_block")))
@@ -110,6 +111,12 @@ public final class BronzeAdvancements {
         .display(MainRegistry.SICKLE.get(), Component.translatable("advancement.bronze.got_sickle.title"), Component.translatable("advancement.bronze.got_sickle.description"), null, AdvancementType.TASK, true, true, false)
         .addCriterion("got_sickle", InventoryChangeTrigger.TriggerInstance.hasItems(MainRegistry.SICKLE.get()))
         .build(ID("bronze/got_sickle")));
+
+    advancementConsumer.accept(Advancement.Builder.advancement()
+        .parent(gotBronzeIngotAdvancement)
+        .display(MainRegistry.TROWEL.get(), Component.translatable("advancement.bronze.got_trowel.title"), Component.translatable("advancement.bronze.got_trowel.description"), null, AdvancementType.TASK, true, true, false)
+        .addCriterion("got_trowel", InventoryChangeTrigger.TriggerInstance.hasItems(MainRegistry.TROWEL.get()))
+        .build(ID("bronze/got_trowel")));
 
     advancementConsumer.accept(Advancement.Builder.advancement()
         .parent(gotBronzeIngotAdvancement)

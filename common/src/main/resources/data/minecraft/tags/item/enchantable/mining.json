@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "bronze:bronze_sickle"
+    "bronze:bronze_sickle",
+    "bronze:trowel"
   ]
 }

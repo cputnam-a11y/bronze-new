@@ -43,13 +43,13 @@ import static com.khazoda.bronze.Constants.LOG;
 /**
  *
  * <b>A sickle has two main functions, mowing/plucking and harvesting.</b>
- * <br>Mowing: left-clicking removes grass, leaf litter, ferns, or anything else defined in {@link #SICKLE_MOW_BLOCKS}.
- * <br>Plucking: right-clicking removes flowers or anything else defined in {@link #SICKLE_PLUCK_BLOCKS}.
+ * <br>Mowing: left-clicking removes grass, leaf litter, ferns, or anything else defined in {@link #SICKLE_MOWABLE_BLOCKS}.
+ * <br>Plucking: right-clicking removes flowers or anything else defined in {@link #SICKLE_PLUCKABLE_BLOCKS}.
  * <br>Harvesting: right-clicking mature crops breaks and replants them, with a low chance of extra loot drops.
  * <br>
  * <br><b>Definitions</b>
- * <br> <i>Grasslike</i>: a block that is defined in {@link #SICKLE_MOW_BLOCKS}.
- * <br> <i>Pluckable</i>: a block that is defined in {@link #SICKLE_PLUCK_BLOCKS}.
+ * <br> <i>Grasslike</i>: a block that is defined in {@link #SICKLE_MOWABLE_BLOCKS}.
+ * <br> <i>Pluckable</i>: a block that is defined in {@link #SICKLE_PLUCKABLE_BLOCKS}.
  * <br> <i>sickle_mow_range</i>: the configured area size for mowing and plucking.
  * <br> <i>sickle_harvest_range</i>: the configured area size for harvesting crops.
  * <br>
@@ -60,25 +60,17 @@ import static com.khazoda.bronze.Constants.LOG;
  * <br>Right Click Pluckables: break pluckable blocks in sickle_mow_range, leave mowable grasslikes intact.
  */
 public class Sickle extends Item {
-  public static final TagKey<Block> SICKLE_MOW_BLOCKS = TagKey.create(Registries.BLOCK, ID("sickle_mow"));
-  public static final TagKey<Block> SICKLE_PLUCK_BLOCKS = TagKey.create(Registries.BLOCK, ID("sickle_pluck"));
-
-  public static Properties defaultProperties(Properties properties) {
-    return properties
-        .durability(238)
-        .component(DataComponents.TOOL, createToolProperties());
-  }
+  public static final TagKey<Block> SICKLE_MOWABLE_BLOCKS = TagKey.create(Registries.BLOCK, ID("sickle_mowable"));
+  public static final TagKey<Block> SICKLE_PLUCKABLE_BLOCKS = TagKey.create(Registries.BLOCK, ID("sickle_pluckable"));
 
   public static Sickle create(Properties properties) {
-    return new Sickle(defaultProperties(properties));
+    return new Sickle(properties
+        .durability(238)
+        .component(DataComponents.TOOL, new Tool(List.of(), 1.0F, 1, true)));
   }
 
   public Sickle(Properties properties) {
     super(properties);
-  }
-
-  public static Tool createToolProperties() {
-    return new Tool(List.of(), 1.0F, 1, true);
   }
 
   @Override
@@ -92,9 +84,9 @@ public class Sickle extends Item {
     Tool tool = stack.get(DataComponents.TOOL);
     if (tool == null) return false;
 
-    if (state.is(SICKLE_MOW_BLOCKS)) {
+    if (state.is(SICKLE_MOWABLE_BLOCKS)) {
       // Sickle Mowing
-      aoeMow(level, miningEntity, state, pos, SICKLE_MOW_BLOCKS);
+      aoeMow(level, miningEntity, state, pos, SICKLE_MOWABLE_BLOCKS);
       stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
     } else if (!level.isClientSide() && !state.is(BlockTags.FIRE) && state.getDestroySpeed(level, pos) != 0.0f && tool.damagePerBlock() > 0) {
       // Normal Tool Damage
@@ -122,11 +114,11 @@ public class Sickle extends Item {
       stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
       aoeHarvest(level, player, basePos);
       return InteractionResult.SUCCESS;
-    } else if ((state.is(SICKLE_PLUCK_BLOCKS))) {
+    } else if ((state.is(SICKLE_PLUCKABLE_BLOCKS))) {
       playSweepFeedback(serverLevel, player, context.getHand(), pos, state, 0.8F, 1.0F);
       level.playSound(null, pos, SoundEvents.BUBBLE_POP, SoundSource.BLOCKS, 1.0F, 1.0F);
       stack.hurtAndBreak(1, player, player.getEquipmentSlotForItem(stack));
-      aoeMow(level, player, state, pos, SICKLE_PLUCK_BLOCKS);
+      aoeMow(level, player, state, pos, SICKLE_PLUCKABLE_BLOCKS);
       return InteractionResult.SUCCESS;
     }
     return InteractionResult.PASS;

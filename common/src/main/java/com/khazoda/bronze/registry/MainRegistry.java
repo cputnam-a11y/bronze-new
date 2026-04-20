@@ -1,18 +1,19 @@
 package com.khazoda.bronze.registry;
 
+import com.khazoda.baseline.KhazReg;
+import com.khazoda.baseline.KhazReg.BlockEntry;
+import com.khazoda.baseline.KhazReg.Entry;
 import com.khazoda.bronze.Constants;
 import com.khazoda.bronze.block.*;
 import com.khazoda.bronze.item.FarmersDelightKnife;
 import com.khazoda.bronze.item.Sickle;
+import com.khazoda.bronze.item.Trowel;
 import com.khazoda.bronze.material.BronzeMaterial;
 import com.khazoda.bronze.material.TinMaterial;
 import com.khazoda.bronze.platform.Services;
-import com.khazoda.baseline.KhazReg;
-import com.khazoda.baseline.KhazReg.BlockEntry;
-import com.khazoda.baseline.KhazReg.Entry;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.ItemLike;
@@ -32,6 +33,11 @@ public final class MainRegistry {
   private static boolean initialized;
   public static final KhazReg reg = new KhazReg(Constants.MOD_ID);
   private static final List<Supplier<? extends ItemLike>> TAB = new ArrayList<>();
+
+  /**
+   * ==========[ Sounds ]=========
+   */
+  public static final Entry<SoundEvent> TROWEL_DIG = reg.sound("trowel_dig");
 
   /**
    * ==========[ Items ]==========
@@ -64,12 +70,14 @@ public final class MainRegistry {
   public static final Entry<ShovelItem> BRONZE_SHOVEL = reg.shovel("bronze_shovel", BronzeMaterial.TOOL, 1.5F, -3.0F).addToTab(TAB);
   public static final Entry<HoeItem> BRONZE_HOE = reg.hoe("bronze_hoe", BronzeMaterial.TOOL, -2.0F, 0.0F).addToTab(TAB);
   public static final Entry<Sickle> SICKLE = reg.item("bronze_sickle", Sickle::create).addToTab(TAB);
+  public static final Entry<Trowel> TROWEL = reg.item("trowel", Trowel::create).addToTab(TAB);
   public static final Entry<Item> BRONZE_HELMET = reg.humanoidArmor("bronze_helmet", BronzeMaterial.ARMOR, ArmorType.HELMET).addToTab(TAB);
   public static final Entry<Item> BRONZE_CHESTPLATE = reg.humanoidArmor("bronze_chestplate", BronzeMaterial.ARMOR, ArmorType.CHESTPLATE).addToTab(TAB);
   public static final Entry<Item> BRONZE_LEGGINGS = reg.humanoidArmor("bronze_leggings", BronzeMaterial.ARMOR, ArmorType.LEGGINGS).addToTab(TAB);
   public static final Entry<Item> BRONZE_BOOTS = reg.humanoidArmor("bronze_boots", BronzeMaterial.ARMOR, ArmorType.BOOTS).addToTab(TAB);
   public static final Entry<FarmersDelightKnife> BRONZE_KNIFE = reg.item("bronze_knife", (key, props) -> new FarmersDelightKnife(FarmersDelightKnife.createProperties(key, BronzeMaterial.TOOL)));
   public static final Entry<FarmersDelightKnife> TIN_KNIFE = reg.item("tin_knife", (key, props) -> new FarmersDelightKnife(FarmersDelightKnife.createProperties(key, TinMaterial.TOOL)));
+  public static final Entry<Item> BRONZE_COIN = reg.item("bronze_coin").addToTab(TAB);
 
   static {
     if (Services.PLATFORM.isModLoaded("farmersdelight")) {
@@ -124,12 +132,6 @@ public final class MainRegistry {
   }
 
   private static BlockEntry<Block, BlockItem> blockWithItem(String name, float destroyTime, float explosionResistance, MapColor mapColor, NoteBlockInstrument instrument, SoundType soundType) {
-    return reg.blockWithItem(name, (key, props) -> new Block(BlockBehaviour.Properties.of()
-        .strength(destroyTime, explosionResistance)
-        .mapColor(mapColor)
-        .instrument(instrument)
-        .sound(soundType)
-        .requiresCorrectToolForDrops()
-        .setId(key)), BlockItem::new);
+    return reg.blockWithItem(name, (key, props) -> new Block(BlockBehaviour.Properties.of().strength(destroyTime, explosionResistance).mapColor(mapColor).instrument(instrument).sound(soundType).requiresCorrectToolForDrops().setId(key)), BlockItem::new);
   }
 }

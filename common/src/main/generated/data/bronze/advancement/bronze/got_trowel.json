@@ -1,0 +1,32 @@
+{
+  "parent": "bronze:bronze/got_bronze_ingot",
+  "criteria": {
+    "got_trowel": {
+      "conditions": {
+        "items": [
+          {
+            "items": "bronze:trowel"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.bronze.got_trowel.description"
+    },
+    "icon": {
+      "id": "bronze:trowel"
+    },
+    "title": {
+      "translate": "advancement.bronze.got_trowel.title"
+    }
+  },
+  "requirements": [
+    [
+      "got_trowel"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

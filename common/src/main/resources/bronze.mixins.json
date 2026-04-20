@@ -6,11 +6,12 @@
   "compatibilityLevel": "JAVA_18",
   "mixins": [],
   "client": [
-    "client.BeaconScreenMixin"
+    "client.BeaconScreenMixin",
+    "client.HumanoidModelMixin",
+    "client.ItemInHandRendererMixin"
   ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
   }
 }
-

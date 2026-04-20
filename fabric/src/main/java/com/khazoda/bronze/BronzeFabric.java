@@ -1,6 +1,7 @@
 package com.khazoda.bronze;
 
 import com.khazoda.bronze.loot.LootTableModificationFabric;
+import com.khazoda.bronze.loot.TrowelConversionReloadFabric;
 import com.khazoda.bronze.registry.MainRegistry;
 import com.khazoda.baseline.KhazRegFabric;
 import net.fabricmc.api.ModInitializer;
@@ -19,5 +20,6 @@ public class BronzeFabric implements ModInitializer {
     BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.UNDERGROUND_ORES, MainRegistry.TIN_ORE_SMALL_PLACED_KEY);
     CreativeModeTabEvents.modifyOutputEvent(MainRegistry.BRONZE_TAB.key()).register(output -> MainRegistry.addMainTabItems(output::accept));
     LootTableModificationFabric.init();
+    TrowelConversionReloadFabric.init();
   }
 }

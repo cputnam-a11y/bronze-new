@@ -1,0 +1,7 @@
+{
+  "from": [
+    "minecraft:mud"
+  ],
+  "to": "minecraft:sand",
+  "loot": "bronze:trowel/squish_mud"
+}

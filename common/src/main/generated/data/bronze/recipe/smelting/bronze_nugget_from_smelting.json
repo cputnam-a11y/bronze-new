@@ -15,7 +15,8 @@
     "bronze:bronze_leggings",
     "bronze:bronze_boots",
     "bronze:bronze_horse_armor",
-    "bronze:bronze_nautilus_armor"
+    "bronze:bronze_nautilus_armor",
+    "bronze:bronze_coin"
   ],
   "result": {
     "id": "bronze:bronze_nugget"

@@ -1,0 +1,8 @@
+{
+  "from": [
+    "minecraft:sand",
+    "minecraft:red_sand"
+  ],
+  "to": "minecraft:air",
+  "loot": "bronze:trowel/sift_sand"
+}

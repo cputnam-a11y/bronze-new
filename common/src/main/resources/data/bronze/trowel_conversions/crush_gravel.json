@@ -1,0 +1,7 @@
+{
+  "from": [
+    "minecraft:gravel"
+  ],
+  "to": "minecraft:sand",
+  "loot": "bronze:trowel/crush_gravel"
+}

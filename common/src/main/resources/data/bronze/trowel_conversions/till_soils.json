@@ -1,0 +1,11 @@
+{
+  "from": [
+    "minecraft:grass_block",
+    "minecraft:podzol",
+    "minecraft:mycelium",
+    "minecraft:dirt_path",
+    "minecraft:farmland"
+  ],
+  "to": "minecraft:coarse_dirt",
+  "loot": "bronze:trowel/till_soils"
+}
