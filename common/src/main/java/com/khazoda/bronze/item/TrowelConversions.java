@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -27,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public final class TrowelConversions {
     return conversions.get(state.getBlock());
   }
 
-  private static void apply(HolderLookup.Provider registries, ResourceManager manager, Map<Identifier, JsonObject> files) {
+  private static void apply(HolderLookup.Provider registries, ResourceManager manager, List<PreparedConversionFile> files) {
     HolderLookup.RegistryLookup<Block> blocks = registries.lookupOrThrow(Registries.BLOCK);
     Map<TagKey<Block>, List<Holder<Block>>> blockTags = TagLoader.loadTagsForRegistry(
         manager,
@@ -54,9 +55,9 @@ public final class TrowelConversions {
     );
     Map<Block, TrowelConversion> loaded = new LinkedHashMap<>();
 
-    files.entrySet().stream()
-        .sorted(Comparator.comparing(entry -> entry.getKey().toString()))
-        .forEach(entry -> loadFile(blocks, blockTags, entry.getKey(), entry.getValue(), loaded));
+    for (PreparedConversionFile file : files) {
+      loadFile(blocks, blockTags, file, loaded);
+    }
 
     conversions = Map.copyOf(loaded);
     Constants.LOG.info("Loaded {} trowel conversions", conversions.size());
@@ -65,11 +66,12 @@ public final class TrowelConversions {
   private static void loadFile(
       HolderLookup.RegistryLookup<Block> blocks,
       Map<TagKey<Block>, List<Holder<Block>>> blockTags,
-      Identifier fileId,
-      JsonObject json,
+      PreparedConversionFile file,
       Map<Block, TrowelConversion> loaded
   ) {
     try {
+      Identifier fileId = file.id();
+      JsonObject json = file.json();
       Block to = resolveToBlock(blocks, fileId, json);
       @Nullable ResourceKey<LootTable> loot = resolveLoot(fileId, json);
       JsonElement from = GsonHelper.getNonNull(json, "from");
@@ -81,13 +83,13 @@ public final class TrowelConversions {
         }
 
         for (JsonElement element : from.getAsJsonArray()) {
-          resolveFrom(blocks, blockTags, fileId, element, to, loot, loaded);
+          resolveFrom(blocks, blockTags, file, element, to, loot, loaded);
         }
       } else {
-        resolveFrom(blocks, blockTags, fileId, from, to, loot, loaded);
+        resolveFrom(blocks, blockTags, file, from, to, loot, loaded);
       }
     } catch (JsonParseException exception) {
-      Constants.LOG.warn("Skipping trowel conversion '{}': {}", fileId, exception.getMessage());
+      Constants.LOG.warn("Skipping trowel conversion '{}' from pack '{}': {}", file.id(), file.packId(), exception.getMessage());
     }
   }
 
@@ -114,7 +116,7 @@ public final class TrowelConversions {
   private static void resolveFrom(
       HolderLookup.RegistryLookup<Block> blocks,
       Map<TagKey<Block>, List<Holder<Block>>> blockTags,
-      Identifier fileId,
+      PreparedConversionFile file,
       JsonElement element,
       Block to,
       @Nullable ResourceKey<LootTable> loot,
@@ -122,60 +124,60 @@ public final class TrowelConversions {
   ) {
     String raw = GsonHelper.convertToString(element, "from");
     if (raw.startsWith("#")) {
-      resolveFromTag(blockTags, fileId, raw, to, loot, loaded);
+      resolveFromTag(blockTags, file, raw, to, loot, loaded);
     } else {
-      Identifier id = parseIdentifier(raw, fileId, "from");
+      Identifier id = parseIdentifier(raw, file.id(), "from");
       Optional<Holder.Reference<Block>> holder = blocks.get(ResourceKey.create(Registries.BLOCK, id));
       if (holder.isEmpty()) {
-        Constants.LOG.warn("Skipping unknown trowel conversion source '{}' in '{}'", id, fileId);
+        Constants.LOG.warn("Skipping unknown trowel conversion source '{}' in '{}' from pack '{}'", id, file.id(), file.packId());
         return;
       }
 
-      addConversion(fileId, holder.get().value(), to, loot, loaded);
+      addConversion(file, holder.get().value(), to, loot, loaded);
     }
   }
 
   private static void resolveFromTag(
       Map<TagKey<Block>, List<Holder<Block>>> blockTags,
-      Identifier fileId,
+      PreparedConversionFile file,
       String raw,
       Block to,
       @Nullable ResourceKey<LootTable> loot,
       Map<Block, TrowelConversion> loaded
   ) {
-    Identifier id = parseIdentifier(raw.substring(1), fileId, "from");
+    Identifier id = parseIdentifier(raw.substring(1), file.id(), "from");
     TagKey<Block> tag = TagKey.create(Registries.BLOCK, id);
     List<Holder<Block>> holders = blockTags.get(tag);
     if (holders == null) {
-      Constants.LOG.warn("Skipping unknown trowel conversion block tag '#{}' in '{}'", id, fileId);
+      Constants.LOG.warn("Skipping unknown trowel conversion block tag '#{}' in '{}' from pack '{}'", id, file.id(), file.packId());
       return;
     }
 
     if (holders.isEmpty()) {
-      Constants.LOG.warn("Skipping empty trowel conversion block tag '#{}' in '{}'", id, fileId);
+      Constants.LOG.warn("Skipping empty trowel conversion block tag '#{}' in '{}' from pack '{}'", id, file.id(), file.packId());
       return;
     }
 
     for (Holder<Block> holder : holders) {
-      addConversion(fileId, holder.value(), to, loot, loaded);
+      addConversion(file, holder.value(), to, loot, loaded);
     }
   }
 
   private static void addConversion(
-      Identifier fileId,
+      PreparedConversionFile file,
       Block from,
       Block to,
       @Nullable ResourceKey<LootTable> loot,
       Map<Block, TrowelConversion> loaded
   ) {
     TrowelConversion conversion = new TrowelConversion(from, to, loot);
-    TrowelConversion existing = loaded.putIfAbsent(from, conversion);
+    TrowelConversion existing = loaded.put(from, conversion);
     if (existing != null) {
       Constants.LOG.warn(
-          "Skipping duplicate trowel conversion for '{}' in '{}'; '{}' is already mapped to '{}'",
+          "Overriding trowel conversion for '{}' with '{}' from pack '{}'; previously mapped to '{}'",
           BuiltInRegistries.BLOCK.getKey(from),
-          fileId,
-          BuiltInRegistries.BLOCK.getKey(existing.from()),
+          file.id(),
+          file.packId(),
           BuiltInRegistries.BLOCK.getKey(existing.to())
       );
     }
@@ -189,7 +191,10 @@ public final class TrowelConversions {
     return id;
   }
 
-  public static class ReloadListener extends SimplePreparableReloadListener<Map<Identifier, JsonObject>> {
+  private record PreparedConversionFile(String packId, Identifier id, JsonObject json) {
+  }
+
+  public static class ReloadListener extends SimplePreparableReloadListener<List<PreparedConversionFile>> {
     private final HolderLookup.Provider registries;
 
     public ReloadListener(HolderLookup.Provider registries) {
@@ -197,27 +202,41 @@ public final class TrowelConversions {
     }
 
     @Override
-    protected Map<Identifier, JsonObject> prepare(ResourceManager manager, ProfilerFiller profiler) {
-      Map<Identifier, JsonObject> result = new LinkedHashMap<>();
-      for (Map.Entry<Identifier, Resource> entry : CONVERTER.listMatchingResources(manager).entrySet()) {
+    protected List<PreparedConversionFile> prepare(ResourceManager manager, ProfilerFiller profiler) {
+      List<String> packOrder = manager.listPacks().map(PackResources::packId).toList();
+      Map<String, List<PreparedConversionFile>> filesByPack = new LinkedHashMap<>();
+      for (String packId : packOrder) {
+        filesByPack.put(packId, new ArrayList<>());
+      }
+
+      for (Map.Entry<Identifier, List<Resource>> entry : CONVERTER.listMatchingResourceStacks(manager).entrySet()) {
         Identifier location = entry.getKey();
         Identifier id = CONVERTER.fileToId(location);
 
-        try (Reader reader = entry.getValue().openAsReader()) {
-          JsonElement json = StrictJsonParser.parse(reader);
-          if (!json.isJsonObject()) {
-            throw new JsonSyntaxException("Expected trowel conversion to be an object");
+        for (Resource resource : entry.getValue()) {
+          try (Reader reader = resource.openAsReader()) {
+            JsonElement json = StrictJsonParser.parse(reader);
+            if (!json.isJsonObject()) {
+              throw new JsonSyntaxException("Expected trowel conversion to be an object");
+            }
+
+            filesByPack.computeIfAbsent(resource.sourcePackId(), ignored -> new ArrayList<>())
+                .add(new PreparedConversionFile(resource.sourcePackId(), id, json.getAsJsonObject()));
+          } catch (IOException | JsonParseException exception) {
+            Constants.LOG.warn("Couldn't parse trowel conversion '{}' from '{}' in pack '{}'", id, location, resource.sourcePackId(), exception);
           }
-          result.put(id, json.getAsJsonObject());
-        } catch (IOException | JsonParseException exception) {
-          Constants.LOG.warn("Couldn't parse trowel conversion '{}' from '{}'", id, location, exception);
         }
       }
-      return result;
+
+      List<PreparedConversionFile> orderedFiles = new ArrayList<>();
+      for (List<PreparedConversionFile> files : filesByPack.values()) {
+        orderedFiles.addAll(files);
+      }
+      return orderedFiles;
     }
 
     @Override
-    protected void apply(Map<Identifier, JsonObject> preparations, ResourceManager manager, ProfilerFiller profiler) {
+    protected void apply(List<PreparedConversionFile> preparations, ResourceManager manager, ProfilerFiller profiler) {
       TrowelConversions.apply(registries, manager, preparations);
     }
   }

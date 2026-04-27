@@ -51,16 +51,16 @@ public class Trowel extends Item {
     Player player = context.getPlayer();
     if (player == null) return InteractionResult.PASS;
 
-    if (!(context.getLevel() instanceof ServerLevel)) {
-      return InteractionResult.SUCCESS_SERVER;
-    }
-
     if (player.isUsingItem() && player.getUsedItemHand() == context.getHand() && ItemStack.isSameItemSameComponents(player.getUseItem(), context.getItemInHand())) {
       return InteractionResult.CONSUME;
     }
 
     if (TrowelConversions.get(context.getLevel().getBlockState(context.getClickedPos())) == null) {
       return InteractionResult.PASS;
+    }
+
+    if (!(context.getLevel() instanceof ServerLevel)) {
+      return InteractionResult.SUCCESS_SERVER;
     }
 
     ACTIVE_TARGETS.put(player.getUUID(), new BlockHitResult(context.getClickLocation(), context.getClickedFace(), context.getClickedPos(), context.isInside()));

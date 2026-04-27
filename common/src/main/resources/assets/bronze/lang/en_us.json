@@ -75,7 +75,8 @@
   "item.bronze.bronze_nautilus_armor": "Bronze Nautilus Armor",
   "item.bronze.tin_spear": "Tin Spear",
   "item.bronze.bronze_spear": "Bronze Spear",
-  "advancement.bronze.got_trowel.title": "CHANGE THIS",
-  "advancement.bronze.got_trowel.description": "CHANGE THIS",
-  "item.bronze.bronze_coin": "Bronze Coin"
+  "advancement.bronze.got_trowel.title": "Digging for Treasure",
+  "advancement.bronze.got_trowel.description": "Craft this pocket block converter",
+  "item.bronze.bronze_coin": "Bronze Coin",
+  "subtitles.bronze.item.trowel.dig": "Trowel digs"
 }
