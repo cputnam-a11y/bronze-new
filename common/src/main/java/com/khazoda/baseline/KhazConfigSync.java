@@ -9,11 +9,13 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class KhazConfigSync {
+  private final Identifier payloadId;
   private final CustomPacketPayload.Type<ServerConfigSyncPayload> type;
   private final StreamCodec<RegistryFriendlyByteBuf, ServerConfigSyncPayload> codec;
 
   private KhazConfigSync(Identifier payloadId) {
-    this.type = new CustomPacketPayload.Type<>(Objects.requireNonNull(payloadId, "payloadId"));
+    this.payloadId = Objects.requireNonNull(payloadId, "payloadId");
+    this.type = new CustomPacketPayload.Type<>(this.payloadId);
     this.codec = CustomPacketPayload.codec(ServerConfigSyncPayload::write, buffer -> ServerConfigSyncPayload.read(this, buffer));
   }
 
@@ -23,6 +25,10 @@ public final class KhazConfigSync {
 
   public CustomPacketPayload.Type<ServerConfigSyncPayload> type() {
     return type;
+  }
+
+  public Identifier payloadId() {
+    return payloadId;
   }
 
   public StreamCodec<RegistryFriendlyByteBuf, ServerConfigSyncPayload> codec() {
