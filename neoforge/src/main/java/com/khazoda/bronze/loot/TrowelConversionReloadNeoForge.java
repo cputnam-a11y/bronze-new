@@ -11,6 +11,7 @@ public final class TrowelConversionReloadNeoForge {
   private TrowelConversionReloadNeoForge() {
   }
 
+  @SuppressWarnings("removal")
   @SubscribeEvent
   public static void onAddServerReloadListeners(AddServerReloadListenersEvent event) {
     event.addListener(TrowelConversions.RELOAD_LISTENER_ID, new TrowelConversions.ReloadListener(event.getRegistryAccess()));
